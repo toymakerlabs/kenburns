@@ -1,0 +1,15 @@
+#kenburns_slideshow {
+	position: relative;
+	width:360px;
+	height: 240px;
+	background-color:black;
+	border:1px solid red;
+	z-index: 3;
+	overflow: hidden;
+}
+#kenburns_slideshow img {
+	position: absolute;
+	top:0;
+	left: 0;
+	opacity: 0.0;
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+	<div id="kenburns_slideshow"></div>
+	<button type="button" id="button0">image 0</button>
+	<button type="button" id="button1">image 1</button>
+	<button type="button" id="button2">image 2</button>
+	<button type="button" id="button3">image 3</button>
+	<button type="button" id="button4">image 4</button>
+
+
+	<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="js/kenburnsCycle.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+
+	    // attach the plugin to an element
+	    $('#kenburns_slideshow').Kenburns({
+	    	images: [
+	    		"images/708x472_bestbuy_01.jpg",
+	    		"images/708x472_bestbuy_02.jpg",
+	    		"images/708x472_bestbuy_03.jpg",
+	    		"images/708x472_deadisland_02.jpg",
+	    		"images/708x472_deadisland_01.jpg"  
+	    	],
+	    	scale:0.75,
+	    	duration:1000,
+
+	    	onSlideComplete: function(){
+	    		alert("done!");
+	    	},
+	    	onLoadingComplete: function(){
+	    		alert("done!");
+	    	}
+
+	    });
+
+	    $('button').each(function(index){
+	    	$(this).click(function(){
+	    	})
+	    });
+
+	    //$('#kenburns_slideshow').attachImage("images/708x472_digital_future.jpg");
+
+
+	    // // call a public method
+	    // $('#element').pluginName('foo_public_method');
+
+	    // // get the value of a property
+	    // $('#element').pluginName.settings.foo;
+
+	});
+	</script>
+</body>
+</html>
