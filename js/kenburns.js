@@ -166,14 +166,14 @@ john@toymakerlabs.com
 	    var that = this;
 	    var slide = start_index; //current slide
 
-
+        that.transition(slide);
 		this.interval = setInterval(function(){
             //revise to a wait function. 
 		 	//checkLoaded(this.imagesObj);
 			//slide = that.getNextLoadedImage(slide);
             
-            that.transition(slide);
            // console.log(slide);
+
 
             if(slide < that.maxSlides-1){
                 slide++;
@@ -185,6 +185,8 @@ john@toymakerlabs.com
                 that.holdup = slide;
                 slide = 0;
                 that.wait();
+            }else {
+                that.transition(slide);
             }
 
             
@@ -226,17 +228,21 @@ john@toymakerlabs.com
 
         if(currentImage != null){
             $(currentImage).parent().css({'z-index':'1'});
-            $(currentImage).stop().animate({opacity:0},that.options.fadeSpeed);
+            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
         }
         
         var image = imagesObj["image"+slide_index].element;
+        var sw = imagesObj["image"+slide_index].width;
+        var sh = imagesObj["image"+slide_index].height;
 
 
         // var vert = getCorner('vertical');
         // var side = getCorner('horizontal');
 
-        var dx = that.width  - image.width;
-        var dy = that.height - image.height;
+        var scale = this.options.scale;        
+        var dx = that.width  - (sw*scale);
+        var dy = that.height - (sh*scale);
+
 
         var corners = [
             {x:0,y:0},
@@ -251,19 +257,27 @@ john@toymakerlabs.com
         corners.splice(choice,1);
         var end = corners[Math.floor(Math.random()*3)];
 
-        console.log(start.x + ","+end.x);
+        console.log(start.x*scale + ","+end.x*scale);
 
 
         //set the div to a corner
         //fade in the image
         //animate the wrapper for the duration of the slide
-        $(image).animate({'opacity':1},that.options.fadeSpeed);
+        
+        //set the scale
+        $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
+        $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
+
+
 
         //set image wrapper to random corner
-        $(image).parent().css({'left':start.x,'top':start.y,'z-index':'3'});
+        //$(image).parent().css({'width':sw*(scale), 'height':sh*(scale)});
+        //$(image).parent().css({'opacity':0,'z-index':'3'});
 
         //animate it to another random corner, except the initial corner
-        $(image).parent().animate({'left':end.x,'top':end.y,},t);
+        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+         // .delay(t-that.options.fadeSpeed)
+         // .animate({'opacity':0},that.options.fadeSpeed);
         currentImage = image;
     }
 
