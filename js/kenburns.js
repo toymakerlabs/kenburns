@@ -55,6 +55,7 @@ john@toymakerlabs.com
         this._name = pluginName;
         this.started = false;
         this.imgLoadTime = 0;
+        this.ease3d = 'cubic-bezier(.81, 0, .26, 1)';
         this.maxSlides = this.options.images.length;
         
         this.init();
@@ -72,22 +73,26 @@ john@toymakerlabs.com
 
         this.width = $(this.element).width();
         this.height = $(this.element).height();
-        // for (i in list) {
-        // 	this.attachImage(list[i], "image"+i , i);
-        // 	imagesObj["image"+i] = {};
-        // 	imagesObj["image"+i].loaded = false;
-        // }
+
+        for (i in list) {
+        	this.attachImage(list[i], "image"+i , i);
+        	imagesObj["image"+i] = {};
+        	imagesObj["image"+i].loaded = false;
+        }
         //var that = this;
-        imagesObj["image"+0] = {};
-        imagesObj["image"+0].loaded = true;
-        imagesObj["image"+1] = {};
-        imagesObj["image"+1].loaded = false;
-        imagesObj["image"+2] = {};
-        imagesObj["image"+2].loaded = false;
-        imagesObj["image"+3] = {};
-        imagesObj["image"+3].loaded = false;
-        imagesObj["image"+4] = {};
-        imagesObj["image"+4].loaded = false;
+        // imagesObj["image"+0] = {};
+        // imagesObj["image"+0].loaded = true;
+        // imagesObj["image"+1] = {};
+        // imagesObj["image"+1].loaded = false;
+        // imagesObj["image"+2] = {};
+        // imagesObj["image"+2].loaded = false;
+        // imagesObj["image"+3] = {};
+        // imagesObj["image"+3].loaded = false;
+        // imagesObj["image"+4] = {};
+        // imagesObj["image"+4].loaded = false;
+
+
+
 
         $(document).find('button').each(function(index){
             $(this).click(function(e){
@@ -110,6 +115,12 @@ john@toymakerlabs.com
 		var img = $("<img />");
 		img.attr('src', url);
 		img.attr('alt', alt_text);
+                //set up 3d transitions
+        //-webkit-transition: -webkit-transform 800ms cubic-bezier(.81, 0, .26, 1);
+        if(has3d()){
+            img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
+            img.css({'-moz-transition':'-moz-transform '+that.options.duration+'ms '+that.ease3d});
+        }
 
         wrapper.html(img);
 
@@ -228,7 +239,9 @@ john@toymakerlabs.com
 
         if(currentImage != null){
             $(currentImage).parent().css({'z-index':'1'});
-            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed,function(){
+               
+            });
         }
         
         var image = imagesObj["image"+slide_index].element;
@@ -239,7 +252,7 @@ john@toymakerlabs.com
         // var vert = getCorner('vertical');
         // var side = getCorner('horizontal');
 
-        var scale = this.options.scale;        
+        var scale = 0.75;//this.options.scale;        
         var dx = that.width  - (sw*scale);
         var dy = that.height - (sh*scale);
 
@@ -257,16 +270,24 @@ john@toymakerlabs.com
         corners.splice(choice,1);
         var end = corners[Math.floor(Math.random()*3)];
 
-        console.log(start.x*scale + ","+end.x*scale);
-
 
         //set the div to a corner
         //fade in the image
         //animate the wrapper for the duration of the slide
         
         //set the scale
-        $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
-        $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
+         if(has3d()) {
+                }
+        //use hardware transitions if available. otherwise animate with Jquery
+        console.log(has3d());
+        if(has3d()) {
+            $(image).css({'-webkit-transform':'scale('+scale+')'});
+            $(image).css({'-webkit-transform':'translate3d('+start.x+'px,'+start.y+'px,0) '+'scale(1)'});
+            $(image).css({'-moz-transform':'translate3d('+start.x+'px,'+start.y+'px,0) '+'scale(1)'});
+        }else {
+            $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
+            $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
+        }
 
 
 
@@ -329,6 +350,29 @@ john@toymakerlabs.com
         }
         return corner;
         
+    }
+
+    function has3d() {
+        var el = document.createElement('p'), 
+            has3d,
+            transforms = {
+                'WebkitTransform':'-webkit-transform',
+                'MozTransform':'-moz-transform',
+            };
+
+        // Add it to the body to get the computed style.
+        document.body.insertBefore(el, null);
+
+        for (var t in transforms) {
+            if (el.style[t] !== undefined) {
+                el.style[t] = "translate3d(1px,1px,1px)";
+                has3d = window.getComputedStyle(el).getPropertyValue(transforms[t]);
+            }
+        }
+
+        document.body.removeChild(el);
+
+        return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
     }
 
     Plugin.prototype.wait = function() {

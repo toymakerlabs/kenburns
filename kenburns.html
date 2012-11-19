@@ -16,7 +16,8 @@
 	<script type="text/javascript" src="js/kenburns.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
-
+		//to make it not move
+		//make the images exactly the size of the window
 	    // attach the plugin to an element
 	    $('#kenburns_slideshow').Kenburns({
 	    	images: [
@@ -26,15 +27,15 @@
 	    		"images/708x472_deadisland_02.jpg",
 	    		"images/708x472_deadisland_01.jpg"  
 	    	],
-	    	scale:0.85,
+	    	scale:0.90,
 	    	duration:6000,
 	    	fadeSpeed:1200,
 
 	    	onSlideComplete: function(){
-	    		alert("done!");
+	    		//alert("done!");
 	    	},
 	    	onLoadingComplete: function(){
-	    		alert("done!");
+	    		//alert("done!");
 	    	}
 
 	    });
