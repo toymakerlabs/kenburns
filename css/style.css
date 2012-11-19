@@ -4,12 +4,24 @@
 	height: 240px;
 	background-color:black;
 	border:1px solid red;
-	z-index: 3;
+	z-index: 1;
 	overflow: hidden;
 }
-#kenburns_slideshow img {
+.kb-slide{
 	position: absolute;
 	top:0;
 	left: 0;
-	opacity: 0.0;
+}
+
+.kb-slide img{
+	opacity: 0;
+/*	position: absolute;
+	top:0;
+	left: 0;*/
+
+}
+
+button {
+	position: relative;
+	z-index: 50;
 }
