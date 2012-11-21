@@ -115,14 +115,13 @@ john@toymakerlabs.com
 		var img = $("<img />");
 		img.attr('src', url);
 		img.attr('alt', alt_text);
-                //set up 3d transitions
-        //-webkit-transition: -webkit-transform 800ms cubic-bezier(.81, 0, .26, 1);
-        if(has3d()){
-            img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
-            img.css({'-moz-transition':'-moz-transform '+that.options.duration+'ms '+that.ease3d});
-        }
 
         wrapper.html(img);
+
+        if(has3d() == true) {
+            img.css({'-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
+            img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
+        }
 
         img.load(function() {
         	imagesObj["image"+index].element = this;
@@ -204,6 +203,7 @@ john@toymakerlabs.com
 		},this.options.duration);
 	}
     var currentImage = null;
+    var currentEnd = {x:0,y:0};
 
     /*SIMPLE FADE TRANSITION*/
     // Plugin.prototype.transition = function(slide_index) {
@@ -227,7 +227,6 @@ john@toymakerlabs.com
         var that = this;
         var t = this.options.duration;
 
-        console.log(slide_index);
 
         //Set the image to a random corner. 
         // $(image).css({
@@ -237,12 +236,6 @@ john@toymakerlabs.com
 
 
 
-        if(currentImage != null){
-            $(currentImage).parent().css({'z-index':'1'});
-            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed,function(){
-               
-            });
-        }
         
         var image = imagesObj["image"+slide_index].element;
         var sw = imagesObj["image"+slide_index].width;
@@ -252,7 +245,7 @@ john@toymakerlabs.com
         // var vert = getCorner('vertical');
         // var side = getCorner('horizontal');
 
-        var scale = 0.75;//this.options.scale;        
+        var scale = this.options.scale;        
         var dx = that.width  - (sw*scale);
         var dy = that.height - (sh*scale);
 
@@ -276,14 +269,22 @@ john@toymakerlabs.com
         //animate the wrapper for the duration of the slide
         
         //set the scale
-         if(has3d()) {
-                }
+
         //use hardware transitions if available. otherwise animate with Jquery
-        console.log(has3d());
-        if(has3d()) {
-            $(image).css({'-webkit-transform':'scale('+scale+')'});
-            $(image).css({'-webkit-transform':'translate3d('+start.x+'px,'+start.y+'px,0) '+'scale(1)'});
-            $(image).css({'-moz-transform':'translate3d('+start.x+'px,'+start.y+'px,0) '+'scale(1)'});
+
+        if(currentImage != null){
+            $(currentImage).parent().css({'z-index':'1'});
+            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+
+            if(has3d() == true) {
+                $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+start.x+'px,'+start.y+'px,0)'});
+                console.log(start.x+" , "+start.y);
+            }
+        }
+
+        if(has3d() == true) {
+            $(image).css({'-webkit-transform':'scale(1) translate3d('+end.x*(1+(1-scale))+'px,'+end.y*(1+(1-scale))+'px,0)'});
+            console.log(end.x+" , "+end.y)
         }else {
             $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
             $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
@@ -293,13 +294,17 @@ john@toymakerlabs.com
 
         //set image wrapper to random corner
         //$(image).parent().css({'width':sw*(scale), 'height':sh*(scale)});
-        //$(image).parent().css({'opacity':0,'z-index':'3'});
+        $(image).parent().css({'opacity':0,'z-index':'3'});
+
 
         //animate it to another random corner, except the initial corner
         $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+       // $(image).css({'-webkit-transition':'all 0ms '});
          // .delay(t-that.options.fadeSpeed)
          // .animate({'opacity':0},that.options.fadeSpeed);
         currentImage = image;
+        currentEnd = end;
+
     }
 
     /*

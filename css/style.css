@@ -16,11 +16,14 @@
 
 .kb-slide img{
 	position: absolute;
-	-webkit-transform: translate3d(0,0,0);
-	-moz-transform: translate3d(0,0,0);
+/*	-webkit-transform: translate3d(0,0,0)
+	-moz-transform: translate3d(0,0,0);*/
 	-webkit-backface-visibility: hidden;
 	-moz-backface-visibility: hidden;
-	-webkit-transition: -webkit-transform 800ms cubic-bezier(.81, 0, .26, 1);
+	-webkit-transform-origin:left top;
+-webkit-transition:-webkit-transform 6s cubic-bezier(.81, 0, .26, 1);
+
+
 
 /*	opacity: 0;
 *//*	position: absolute;
@@ -28,9 +31,24 @@
 	left: 0;*/
 
 }
+.animating {
+	-webkit-transition:-webkit-transform 6s cubic-bezier(.81, 0, .26, 1);
+}
 
 button {
 	position: relative;
 	z-index: 50;
+}
+
+@-moz-keyframes myfirst /* Firefox */
+{
+from {background: red;}
+to {background: yellow;}
+}
+
+@-webkit-keyframes myfirst /* Safari and Chrome */
+{
+from {background: red;}
+to {background: yellow;}
 }
 
