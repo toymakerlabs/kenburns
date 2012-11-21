@@ -74,11 +74,14 @@ john@toymakerlabs.com
         this.width = $(this.element).width();
         this.height = $(this.element).height();
 
+        this.has3d = verifyTransforms();
+
         for (i in list) {
         	this.attachImage(list[i], "image"+i , i);
         	imagesObj["image"+i] = {};
         	imagesObj["image"+i].loaded = false;
         }
+
         //var that = this;
         // imagesObj["image"+0] = {};
         // imagesObj["image"+0].loaded = true;
@@ -118,10 +121,13 @@ john@toymakerlabs.com
 
         wrapper.html(img);
 
-        if(has3d() == true) {
+        if(this.has3d) {
+            img.css({'-webkit-transform-origin':'left top'});
             img.css({'-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
             img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
         }
+
+        this.doTransition = (this.has3d)?this.transition3d:this.transition;
 
         img.load(function() {
         	imagesObj["image"+index].element = this;
@@ -171,159 +177,219 @@ john@toymakerlabs.com
         return loaded;
     }
 
+    var currentSlide = 0;
     //test comment
 	Plugin.prototype.startTransition = function(start_index) {
 	    var that = this;
-	    var slide = start_index; //current slide
+	    currentSlide = start_index; //current slide
 
-        that.transition(slide);
+        that.doTransition();
 		this.interval = setInterval(function(){
-            //revise to a wait function. 
-		 	//checkLoaded(this.imagesObj);
-			//slide = that.getNextLoadedImage(slide);
-            
-           // console.log(slide);
 
-
-            if(slide < that.maxSlides-1){
-                slide++;
+            if(currentSlide < that.maxSlides-1){
+                currentSlide++;
             }else {
-                slide = 0;
+                currentSlide = 0;
             }
  
-            if(imagesObj["image"+slide].loaded == false){
-                that.holdup = slide;
-                slide = 0;
+            if(imagesObj["image"+currentSlide].loaded == false){
+                that.holdup = currentSlide;
+                currentSlide = 0;
                 that.wait();
             }else {
-                that.transition(slide);
+                that.doTransition();
             }
 
             
 		},this.options.duration);
 	}
     var currentImage = null;
-    var currentEnd = {x:0,y:0};
+    var start = {x:0,y:0};
 
-    /*SIMPLE FADE TRANSITION*/
+
+    Plugin.prototype.chooseCorner = function(current) {
+
+        var corners = [
+            {x:0,y:0},
+            {x:1,y:0},
+            {x:0,y:1},
+            {x:1,y:1}
+        ];
+
+        //var corner = corners[Math.floor(Math.random()*4)];
+
+        //find the current corner and remove it
+         for(i=0;i<4;i++) {
+            //alert(corners[i].x);
+              if(current.x == corners[i].x && current.y == corners[i].y) {
+                corners.splice(i,1);
+                break;
+              }
+         }
+        
+        //pick a random corner from the remainder
+        var corner = corners[Math.floor(Math.random()*3)];
+        return corner;
+
+
+    }
+
+    Plugin.prototype.transition3d = function () {
+        var that = this;
+        var t = this.options.duration;
+        var scale = this.options.scale; 
+        
+        //determine scale and difference in width
+        var image = imagesObj["image"+currentSlide].element;
+        var sw = imagesObj["image"+currentSlide].width;
+        var sh = imagesObj["image"+currentSlide].height;    
+        var dx = Math.round((this.width  - (sw*scale))*100)/100;
+        var dy = Math.round((this.height - (sh*scale))*100)/100;
+
+        //get the corner 
+        var end = this.chooseCorner(start);
+
+        //build the coordinates from the corner
+        var startX = start.x * dx;
+        var startY = start.y * dy;
+        var endX   = end.x * dx * (1+(1-scale));
+        var endY   = end.y * dy * (1+(1-scale));
+
+        if(currentImage != null){
+            console.log(currentSlide+" STR: " +start.x+ "," +start.y);
+            $(currentImage).parent().css({'z-index':'1'});
+            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+            $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
+        }
+        $(image).parent().css({'opacity':0,'z-index':'3'});
+        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+        $(image).css({'-webkit-transform':'scale(1) translate3d('+endX+'px,'+endY+'px,0)'});
+
+
+        start = this.chooseCorner(start);
+        currentImage = image;
+    }
+
+    Plugin.prototype.transition = function() {
+        var that = this;
+        var t = this.options.duration;
+        var scale = this.options.scale; 
+        
+        //determine scale and difference in width
+        var image = imagesObj["image"+currentSlide].element;
+        var sw = imagesObj["image"+currentSlide].width;
+        var sh = imagesObj["image"+currentSlide].height;    
+        var dx = Math.round((this.width  - (sw*scale))*100)/100;
+        var dy = Math.round((this.height - (sh*scale))*100)/100;
+
+        //get the corner 
+        var end = this.chooseCorner(start);
+
+        //build the coordinates from the corner
+        var startX = start.x * dx;
+        var startY = start.y * dy;
+        var endX   = end.x * dx * (1+(1-scale));
+        var endY   = end.y * dy * (1+(1-scale));
+        
+        console.log(currentSlide+" STR: " +startX+ "," +startY)
+        console.log(currentSlide+" END: "+endX + "," + endY);
+
+        if(currentImage != null){
+             $(currentImage).parent().css({'z-index':'1'});
+             $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+         }
+
+        $(image).css({'left':startX,'top':startY,'width':sw*(scale),'height':sh*(scale)});
+        $(image).animate({'left':endX,'top':endY,'width':sw,'height':sh},t);
+
+        $(image).parent().css({'opacity':0,'z-index':'3'});
+        $(image).parent().animate({'opacity':1},that.options.fadeSpeed)
+
+
+        start = this.chooseCorner(start);
+        currentImage = image;
+    }
+
     // Plugin.prototype.transition = function(slide_index) {
     //     var that = this;
     //     var t = this.options.duration;
 
-    //     console.log(slide_index);
+
+    //     //Set the image to a random corner. 
+    //     // $(image).css({
+    //     //     'left':0,
+    //     //     'bottom':0
+    //     // });
+
+    //     var image = imagesObj["image"+slide_index].element;
+    //     var sw = imagesObj["image"+slide_index].width;
+    //     var sh = imagesObj["image"+slide_index].height;
+
+
+    //     // var vert = getCorner('vertical');
+    //     // var side = getCorner('horizontal');
+
+    //     var scale = this.options.scale;        
+    //     var dx = that.width  - (sw*scale);
+    //     var dy = that.height - (sh*scale);
+
+
+    //     var corners = [
+    //         {x:0,y:0},
+    //         {x:dx,y:0},
+    //         {x:0,y:dy},
+    //         {x:dx,y:dy}
+    //     ];
+
+    //     var choice = Math.floor(Math.random()*4);
+    //     var start = corners[choice];
+
+    //     corners.splice(choice,1);
+    //     var end = corners[Math.floor(Math.random()*3)];
+
+
+    //     //set the div to a corner
+    //     //fade in the image
+    //     //animate the wrapper for the duration of the slide
+        
+    //     //set the scale
+
+    //     //use hardware transitions if available. otherwise animate with Jquery
 
     //     if(currentImage != null){
-    //         $(currentImage).css({'z-index':'1'});
-    //         $(currentImage).stop().animate({opacity:0},400);
+    //         $(currentImage).parent().css({'z-index':'1'});
+    //         $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+
+    //         if(has3d() == true) {
+    //             $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+start.x+'px,'+start.y+'px,0)'});
+    //             console.log(start.x+" , "+start.y);
+    //         }
     //     }
-        
-    //     var image = imagesObj["image"+slide_index].element
-    //     $(image).css({'z-index':'3'});
-    //     $(image).stop().animate({opacity:1},400);
+
+    //     if(has3d() == true) {
+    //         $(image).css({'-webkit-transform':'scale(1) translate3d('+end.x*(1+(1-scale))+'px,'+end.y*(1+(1-scale))+'px,0)'});
+    //         console.log(end.x+" , "+end.y)
+    //     }else {
+    //         $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
+    //         $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
+    //     }
+
+
+
+    //     //set image wrapper to random corner
+    //     //$(image).parent().css({'width':sw*(scale), 'height':sh*(scale)});
+    //     $(image).parent().css({'opacity':0,'z-index':'3'});
+
+
+    //     //animate it to another random corner, except the initial corner
+    //     $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+    //    // $(image).css({'-webkit-transition':'all 0ms '});
+    //      // .delay(t-that.options.fadeSpeed)
+    //      // .animate({'opacity':0},that.options.fadeSpeed);
     //     currentImage = image;
+    //     currentEnd = end;
+
     // }
-
-    Plugin.prototype.transition = function(slide_index) {
-        var that = this;
-        var t = this.options.duration;
-
-
-        //Set the image to a random corner. 
-        // $(image).css({
-        //     'left':0,
-        //     'bottom':0
-        // });
-
-
-
-        
-        var image = imagesObj["image"+slide_index].element;
-        var sw = imagesObj["image"+slide_index].width;
-        var sh = imagesObj["image"+slide_index].height;
-
-
-        // var vert = getCorner('vertical');
-        // var side = getCorner('horizontal');
-
-        var scale = this.options.scale;        
-        var dx = that.width  - (sw*scale);
-        var dy = that.height - (sh*scale);
-
-
-        var corners = [
-            {x:0,y:0},
-            {x:dx,y:0},
-            {x:0,y:dy},
-            {x:dx,y:dy}
-        ];
-
-        var choice = Math.floor(Math.random()*4);
-        var start = corners[choice];
-
-        corners.splice(choice,1);
-        var end = corners[Math.floor(Math.random()*3)];
-
-
-        //set the div to a corner
-        //fade in the image
-        //animate the wrapper for the duration of the slide
-        
-        //set the scale
-
-        //use hardware transitions if available. otherwise animate with Jquery
-
-        if(currentImage != null){
-            $(currentImage).parent().css({'z-index':'1'});
-            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
-
-            if(has3d() == true) {
-                $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+start.x+'px,'+start.y+'px,0)'});
-                console.log(start.x+" , "+start.y);
-            }
-        }
-
-        if(has3d() == true) {
-            $(image).css({'-webkit-transform':'scale(1) translate3d('+end.x*(1+(1-scale))+'px,'+end.y*(1+(1-scale))+'px,0)'});
-            console.log(end.x+" , "+end.y)
-        }else {
-            $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
-            $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
-        }
-
-
-
-        //set image wrapper to random corner
-        //$(image).parent().css({'width':sw*(scale), 'height':sh*(scale)});
-        $(image).parent().css({'opacity':0,'z-index':'3'});
-
-
-        //animate it to another random corner, except the initial corner
-        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
-       // $(image).css({'-webkit-transition':'all 0ms '});
-         // .delay(t-that.options.fadeSpeed)
-         // .animate({'opacity':0},that.options.fadeSpeed);
-        currentImage = image;
-        currentEnd = end;
-
-    }
-
-    /*
-    X: 0 , diff_x , -diff_x
-    Y: 0, diff_y, -diff_y
-
-    */
-    /*
-
-    start at:
-    top,left
-    0,0
-    0,diff_x
-    diff_y,0
-    diff_y,diff_x
-
-    go to:
-    any choice but the last picked
-    */
 
     /* Returns a random css property to start the corner tween */
     function getCorner(num) {
@@ -357,7 +423,7 @@ john@toymakerlabs.com
         
     }
 
-    function has3d() {
+    function verifyTransforms() {
         var el = document.createElement('p'), 
             has3d,
             transforms = {
