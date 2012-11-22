@@ -124,7 +124,7 @@ john@toymakerlabs.com
         if(this.has3d) {
             img.css({'-webkit-transform-origin':'left top'});
             img.css({'-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
-            img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
+           // img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
         }
 
         this.doTransition = (this.has3d)?this.transition3d:this.transition;
@@ -132,7 +132,7 @@ john@toymakerlabs.com
         img.load(function() {
         	imagesObj["image"+index].element = this;
         	imagesObj["image"+index].loaded  = true;
-            imagesObj["image"+index].width = this.width;
+            imagesObj["image"+index].width  = this.width;
             imagesObj["image"+index].height = this.height;
             that.insertAt(index,wrapper);
             that.resume(index);
@@ -226,10 +226,8 @@ john@toymakerlabs.com
                 break;
               }
          }
-        
         //pick a random corner from the remainder
-        var corner = corners[Math.floor(Math.random()*3)];
-        return corner;
+        return corners[Math.floor(Math.random()*3)];
 
 
     }
@@ -249,6 +247,7 @@ john@toymakerlabs.com
         //get the corner 
         var end = this.chooseCorner(start);
 
+
         //build the coordinates from the corner
         var startX = start.x * dx;
         var startY = start.y * dy;
@@ -256,17 +255,25 @@ john@toymakerlabs.com
         var endY   = end.y * dy * (1+(1-scale));
 
         if(currentImage != null){
-            console.log(currentSlide+" STR: " +start.x+ "," +start.y);
             $(currentImage).parent().css({'z-index':'1'});
             $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
-            $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
+           // $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
+
         }
+        $(image).css({'-webkit-transition':'none'});
+        $(image).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
+
         $(image).parent().css({'opacity':0,'z-index':'3'});
         $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+        console.log(currentSlide+" END: " +end.x+ "," +end.y);
+        console.log(currentSlide+" STR: " +start.x+ "," +start.y);
+        $(image).css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
         $(image).css({'-webkit-transform':'scale(1) translate3d('+endX+'px,'+endY+'px,0)'});
 
 
-        start = this.chooseCorner(start);
+
+
+        start = end;
         currentImage = image;
     }
 
