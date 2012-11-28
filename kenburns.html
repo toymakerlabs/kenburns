@@ -5,6 +5,7 @@
 </head>
 <body>
 	<div id="kenburns_slideshow"></div>
+	<h2 id="slide-title"></h2>
 	<button type="button" id="button0">image 0</button>
 	<button type="button" id="button1">image 1</button>
 	<button type="button" id="button2">image 2</button>
@@ -15,6 +16,9 @@
 	<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="js/kenburns.js"></script>
 	<script type="text/javascript">
+
+	var titles = ["Best Buy image 1","Dead Island","Best Buy image 2"];
+
 	$(document).ready(function() {
 		//to make it not move
 		//make the images exactly the size of the window
@@ -26,14 +30,17 @@
 	    		"images/708x472_bestbuy_03.jpg"
 	    	],
 	    	scale:0.75,
-	    	duration:2000,
+	    	duration:6000,
 	    	fadeSpeed:1200,
+	    	ease3d:'ease-out',
 
 	    	onSlideComplete: function(){
 	    		//alert("done!");
+	    		$('#slide-title').html(titles[this.getSlideIndex()]);
 	    	},
 	    	onLoadingComplete: function(){
 	    		//alert("done!");
+	    		//console.log('image loading complete');
 	    	}
 
 	    });

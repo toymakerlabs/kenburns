@@ -34,12 +34,18 @@ john@toymakerlabs.com
             duration:400,
             fadeSpeed:500,
             scale:1,
+            ease3d:'cubic-bezier(.81, 0, .26, 1)',
             onLoadingComplete:function(){},
             onSlideComplete:function(){},
-            onListComplete:function(){}
+            onListComplete:function(){},
+            getSlideIndex:function(){
+                return currentSlide;
+            }
         };
 
     var imagesObj = {};
+    var currentSlide = 0;
+    var currentImage = null;
 
     // The actual plugin constructor
     function Plugin( element, options ) {
@@ -53,9 +59,6 @@ john@toymakerlabs.com
         this.options = $.extend( {}, defaults, options) ;
         this._defaults = defaults;
         this._name = pluginName;
-        this.started = false;
-        this.imgLoadTime = 0;
-        this.ease3d = 'cubic-bezier(.81, 0, .26, 1)';
         this.maxSlides = this.options.images.length;
         
         this.init();
@@ -74,7 +77,7 @@ john@toymakerlabs.com
         this.width = $(this.element).width();
         this.height = $(this.element).height();
 
-        this.has3d = verifyTransforms();
+        this.has3d = has3DTransforms();
 
         for (i in list) {
         	this.attachImage(list[i], "image"+i , i);
@@ -99,7 +102,7 @@ john@toymakerlabs.com
 
         $(document).find('button').each(function(index){
             $(this).click(function(e){
-                that.attachImage(list[index], "image"+index , index)
+                that.attachImage(list[index], "image"+index , index);
                // imagesObj["image"+index].loaded = true;
                // imagesObj["image"+index].element = true;
                 //that.resume(index);
@@ -114,17 +117,21 @@ john@toymakerlabs.com
         //put the image in an empty div to separate the animation effects of fading and moving
         var wrapper = $('<div/>');
         wrapper.attr('class','kb-slide');
+        wrapper.css({'opacity':0});
 
 		var img = $("<img />");
 		img.attr('src', url);
 		img.attr('alt', alt_text);
+
+
 
         wrapper.html(img);
 
         if(this.has3d) {
             img.css({'-webkit-transform-origin':'left top'});
             img.css({'-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
-           // img.css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
+            img.css({'-moz-transform-origin':'left top'});
+            img.css({'-moz-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
         }
 
         this.doTransition = (this.has3d)?this.transition3d:this.transition;
@@ -132,8 +139,8 @@ john@toymakerlabs.com
         img.load(function() {
         	imagesObj["image"+index].element = this;
         	imagesObj["image"+index].loaded  = true;
-            imagesObj["image"+index].width  = this.width;
-            imagesObj["image"+index].height = this.height;
+            imagesObj["image"+index].width  = this.width;//remove
+            imagesObj["image"+index].height = this.height;//remove
             that.insertAt(index,wrapper);
             that.resume(index);
 		});
@@ -150,18 +157,13 @@ john@toymakerlabs.com
         // this will match the image index to the image holding the transition.
         // it will then resume the transition.
         if(index == this.holdup) {
-            console.log("resuming");
+            //console.log("resuming");
             this.startTransition(this.holdup);
         }
 
         //if the last image in the set has loaded, add the images in order
         //fire the complete event
         if(this.checkLoadProgress() == true){
-            //attach image jquery objects to the dom
-            // for(i=0;i<this.maxSlides;i++){
-            //     $(this.element).append(imagesObj["image"+i].element);
-            // }
-            //fire the complete method
             this.options.onLoadingComplete();
         }
     }
@@ -177,7 +179,6 @@ john@toymakerlabs.com
         return loaded;
     }
 
-    var currentSlide = 0;
     //test comment
 	Plugin.prototype.startTransition = function(start_index) {
 	    var that = this;
@@ -200,14 +201,20 @@ john@toymakerlabs.com
                 that.doTransition();
             }
 
-            
+            //Fire the completion action
+
 		},this.options.duration);
 	}
-    var currentImage = null;
-    var start = {x:0,y:0};
 
 
-    Plugin.prototype.chooseCorner = function(current) {
+    Plugin.prototype.chooseCorner = function() {
+        var scale = this.options.scale; 
+        //determine scale and difference in width
+        var image = imagesObj["image"+currentSlide].element;
+        var sw = $(image).width();//imagesObj["image"+currentSlide].width;
+        var sh = $(image).height();//imagesObj["image"+currentSlide].height;    
+        var dx = Math.round((this.width  - (sw*scale))*100)/100;
+        var dy = Math.round((this.height - (sh*scale))*100)/100;
 
         var corners = [
             {x:0,y:0},
@@ -216,221 +223,103 @@ john@toymakerlabs.com
             {x:1,y:1}
         ];
 
-        //var corner = corners[Math.floor(Math.random()*4)];
+        //Pick the first corner. Remove it from the array. Pick the second corner from the subset. 
+        var choice = Math.floor(Math.random()*4);
+        var start = corners[choice];
+        corners.splice(choice,1);
+        var end = corners[Math.floor(Math.random()*3)];
 
-        //find the current corner and remove it
-         for(i=0;i<4;i++) {
-            //alert(corners[i].x);
-              if(current.x == corners[i].x && current.y == corners[i].y) {
-                corners.splice(i,1);
-                break;
-              }
-         }
-        //pick a random corner from the remainder
-        return corners[Math.floor(Math.random()*3)];
+        //build the coordinates from the chosen coordinates
+
+        var coordinates = {
+            startX: start.x * dx,
+            startY: start.y * dy,
+            endX: end.x * dx * (1+(1-scale)),
+            endY: end.y * dy * (1+(1-scale))
+        }
+
+        return coordinates;//corners[Math.floor(Math.random()*3)];
 
 
     }
 
     Plugin.prototype.transition3d = function () {
         var that = this;
-        var t = this.options.duration;
         var scale = this.options.scale; 
-        
-        //determine scale and difference in width
         var image = imagesObj["image"+currentSlide].element;
-        var sw = imagesObj["image"+currentSlide].width;
-        var sh = imagesObj["image"+currentSlide].height;    
-        var dx = Math.round((this.width  - (sw*scale))*100)/100;
-        var dy = Math.round((this.height - (sh*scale))*100)/100;
+        var position = this.chooseCorner();
 
-        //get the corner 
-        var end = this.chooseCorner(start);
+        // if(currentImage != null){
+        //     $(currentImage).parent().css({'z-index':'1'});
+        //     $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+        // }
 
-
-        //build the coordinates from the corner
-        var startX = start.x * dx;
-        var startY = start.y * dy;
-        var endX   = end.x * dx * (1+(1-scale));
-        var endY   = end.y * dy * (1+(1-scale));
-
-        if(currentImage != null){
-            $(currentImage).parent().css({'z-index':'1'});
-            $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
-           // $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
-
-        }
         $(image).css({'-webkit-transition':'none'});
-        $(image).css({'-webkit-transform':'scale('+scale+') translate3d('+startX+'px,'+startY+'px,0)'});
+        $(image).css({'-webkit-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)'});
+        $(image).css({'-moz-transition':'none'});
+        $(image).css({'-moz-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)'});
 
         $(image).parent().css({'opacity':0,'z-index':'3'});
         $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
-        console.log(currentSlide+" END: " +end.x+ "," +end.y);
-        console.log(currentSlide+" STR: " +start.x+ "," +start.y);
-        $(image).css({'-webkit-transition':'-webkit-transform '+that.options.duration+'ms '+that.ease3d});
-        $(image).css({'-webkit-transform':'scale(1) translate3d('+endX+'px,'+endY+'px,0)'});
 
+        $(image).css({'-webkit-transition':'-webkit-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d});
+        $(image).css({'-webkit-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
+        $(image).css({'-moz-transition':'-moz-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d});
+        $(image).css({'-moz-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
 
+        $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
+            $(this).parent().css({'z-index':'1'});
+        });
 
-
-        start = end;
         currentImage = image;
+        that.options.onSlideComplete();
+
     }
 
     Plugin.prototype.transition = function() {
         var that = this;
-        var t = this.options.duration;
         var scale = this.options.scale; 
-        
-        //determine scale and difference in width
         var image = imagesObj["image"+currentSlide].element;
-        var sw = imagesObj["image"+currentSlide].width;
-        var sh = imagesObj["image"+currentSlide].height;    
-        var dx = Math.round((this.width  - (sw*scale))*100)/100;
-        var dy = Math.round((this.height - (sh*scale))*100)/100;
+        var sw = $(image).width();//imagesObj["image"+currentSlide].width;
+        var sh = $(image).height();//imagesObj["image"+currentSlide].height; 
+        var position = this.chooseCorner();
 
-        //get the corner 
-        var end = this.chooseCorner(start);
+        // if(currentImage != null){
+        //      $(currentImage).parent().css({'z-index':'1'});
+        //      $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
+        //  }
+        //  $(image).css({'z-index':3});
 
-        //build the coordinates from the corner
-        var startX = start.x * dx;
-        var startY = start.y * dy;
-        var endX   = end.x * dx * (1+(1-scale));
-        var endY   = end.y * dy * (1+(1-scale));
+
+
+        $(image).css({'left':position.startX,'top':position.startY,'width':sw*(scale),'height':sh*(scale)});
+        $(image).animate({'left':position.endX,'top':position.endY,'width':sw,'height':sh},that.options.duration+that.options.fadeSpeed);
         
-        console.log(currentSlide+" STR: " +startX+ "," +startY)
-        console.log(currentSlide+" END: "+endX + "," + endY);
+        $(image).parent().css({'opacity':0,'z-index':3});
+        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
 
-        if(currentImage != null){
-             $(currentImage).parent().css({'z-index':'1'});
-             $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
-         }
+        $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
+            $(this).css({'z-index':1});
+        });
 
-        $(image).css({'left':startX,'top':startY,'width':sw*(scale),'height':sh*(scale)});
-        $(image).animate({'left':endX,'top':endY,'width':sw,'height':sh},t);
+        // $(image).css({left:position.startX,top:position.startY});
+        // $(image).animate({left:position.endX,top:position.endY},this.options.duration);
 
-        $(image).parent().css({'opacity':0,'z-index':'3'});
-        $(image).parent().animate({'opacity':1},that.options.fadeSpeed)
+        // $(image).parent().css({'z-index':'3'});
+        // $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+
+        // $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
+        //     $(this).parent().css({'z-index':'1'});
+        // });
 
 
-        start = this.chooseCorner(start);
-        currentImage = image;
+        // currentImage = image;
+         that.options.onSlideComplete();
+
     }
 
-    // Plugin.prototype.transition = function(slide_index) {
-    //     var that = this;
-    //     var t = this.options.duration;
 
-
-    //     //Set the image to a random corner. 
-    //     // $(image).css({
-    //     //     'left':0,
-    //     //     'bottom':0
-    //     // });
-
-    //     var image = imagesObj["image"+slide_index].element;
-    //     var sw = imagesObj["image"+slide_index].width;
-    //     var sh = imagesObj["image"+slide_index].height;
-
-
-    //     // var vert = getCorner('vertical');
-    //     // var side = getCorner('horizontal');
-
-    //     var scale = this.options.scale;        
-    //     var dx = that.width  - (sw*scale);
-    //     var dy = that.height - (sh*scale);
-
-
-    //     var corners = [
-    //         {x:0,y:0},
-    //         {x:dx,y:0},
-    //         {x:0,y:dy},
-    //         {x:dx,y:dy}
-    //     ];
-
-    //     var choice = Math.floor(Math.random()*4);
-    //     var start = corners[choice];
-
-    //     corners.splice(choice,1);
-    //     var end = corners[Math.floor(Math.random()*3)];
-
-
-    //     //set the div to a corner
-    //     //fade in the image
-    //     //animate the wrapper for the duration of the slide
-        
-    //     //set the scale
-
-    //     //use hardware transitions if available. otherwise animate with Jquery
-
-    //     if(currentImage != null){
-    //         $(currentImage).parent().css({'z-index':'1'});
-    //         $(currentImage).parent().animate({'opacity':0},that.options.fadeSpeed);
-
-    //         if(has3d() == true) {
-    //             $(currentImage).css({'-webkit-transform':'scale('+scale+') translate3d('+start.x+'px,'+start.y+'px,0)'});
-    //             console.log(start.x+" , "+start.y);
-    //         }
-    //     }
-
-    //     if(has3d() == true) {
-    //         $(image).css({'-webkit-transform':'scale(1) translate3d('+end.x*(1+(1-scale))+'px,'+end.y*(1+(1-scale))+'px,0)'});
-    //         console.log(end.x+" , "+end.y)
-    //     }else {
-    //         $(image).css({'left':start.x,'top':start.y,'width':sw*(scale),'height':sh*(scale)});
-    //         $(image).animate({'left':end.x*(1+(1-scale)),'top':end.y*(1+(1-scale)),'width':sw,'height':sh},t);
-    //     }
-
-
-
-    //     //set image wrapper to random corner
-    //     //$(image).parent().css({'width':sw*(scale), 'height':sh*(scale)});
-    //     $(image).parent().css({'opacity':0,'z-index':'3'});
-
-
-    //     //animate it to another random corner, except the initial corner
-    //     $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
-    //    // $(image).css({'-webkit-transition':'all 0ms '});
-    //      // .delay(t-that.options.fadeSpeed)
-    //      // .animate({'opacity':0},that.options.fadeSpeed);
-    //     currentImage = image;
-    //     currentEnd = end;
-
-    // }
-
-    /* Returns a random css property to start the corner tween */
-    function getCorner(num) {
-        var corner = {};
-        switch(num) {
-            case 0:
-                //top left
-                corner = {'top':0,'left':0}
-                break;
-            case 1:
-                //top right
-                corner = {'top':0,'left':'auto','right':0}
-                break;
-            break;
-            case 2:
-                //bottom left
-                corner = {'top':'auto','bottom':0,'left':0 }
-                break;
-            break;
-            case 3:
-                //bottom right
-                corner = {'top':'auto','bottom':0,'left':'auto','right':0}
-                break;
-            break;
-            default:
-                corner = {'top':0,'left':0}
-                break;
-            break;
-        }
-        return corner;
-        
-    }
-
-    function verifyTransforms() {
+    function has3DTransforms() {
         var el = document.createElement('p'), 
             has3d,
             transforms = {
@@ -449,13 +338,11 @@ john@toymakerlabs.com
         }
 
         document.body.removeChild(el);
-
         return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
     }
 
     Plugin.prototype.wait = function() {
         clearInterval(this.interval);
-        console.log("paused");
     }
 
     Plugin.prototype.insertAt = function (index, element) {
@@ -468,73 +355,6 @@ john@toymakerlabs.com
             $(this.element).children().eq(index).before($(this.element).children().last());
         }
     }
-
-
-	//image 0  must be loaded first
-	//move through the object and find the next loaded image
-	//transition it
-	//move through the objec tand find the next loaded image
-	//transittion it
-	Plugin.prototype.getNextLoadedImage = function(start_index) {
-		//loop through the next set of images
-		//find the first one that's loaded
-		//return it's index
-		//if no loaded images are found in the next set
-		//go back to zero. 
-		// var found = false;
-		// for(i=start_index+1; i<this.maxSlides; i++){
-		// 	if(imagesObj["image"+i].loaded == true) {
-		// 		break;
-		// 	}
-		// 	//console.log(i);
-		// 	return i;//imagesObj["image"+i].element;
-		// 	found = true;
-		// }
-		// if(found != true){
-		// 	return 0;//imagesObj["image0"].element; 
-		// }
-		var next = start_index + 1;
-		// if(next == this.maxSlides){
-		// 	next = 0;
-		// }
-		// if(imagesObj["image"+next].loaded != true){
-		//  	this.getNextLoadedImage(next);
-		// }else {
-		// 	console.log(next);
-		//  	return next;
-		// }
-        var found = false;
-        for(i=next;i<this.maxSlides;i++){
-            if(imagesObj["image"+i].loaded == true){
-                found = true;
-                return i;
-                break;
-            }
-        }
-        if(found== false) {
-            return 0;
-        }
-
-
-	}
-
-
-	//animation moves from top left to right
-	//fade in 1 sec
-
-
-
- 	// var duration = Math.round((endTime - startTime) / 1000) ;
-	// var bitsLoaded = downloadSize * 8 ;
-	// var speedBps = Math.round(bitsLoaded / duration) ;
-	// var speedKbps = (speedBps / 1024).toFixed(2) ;
-	// var speedMbps = (speedKbps / 1024).toFixed(2) ;
-	// alert ("Your connection speed is: \n" +
-	// speedBps + " bps\n" +
-	// speedKbps + " kbps\n" +
-	// speedMbps + " Mbps\n") ;
-	// }
-
 
     // A really lightweight plugin wrapper around the constructor, 
     // preventing against multiple instantiations
