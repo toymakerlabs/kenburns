@@ -1,13 +1,20 @@
 
-
+body {
+	background-color: #D9D9D9;
+}
 #kenburns_slideshow {
 	position: relative;
-	width:360px;
-	height: 240px;
+	width:600px;
+	height: 360px;
 	background-color:black;
-	border:1px solid red;
+	border:22px solid #191919;
 	z-index: 1;
 	overflow: hidden;
+}
+.loader {
+	width:32px;
+	height:32px;
+	background:url(../images/loading_circle.gif);
 }
 .kb-slide{
 	position: absolute;

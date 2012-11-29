@@ -7,7 +7,8 @@ KenBurns Image Rotator
 
 ;(function ( $, window, document, undefined ) {
 
-    // Create the defaults once
+    /*  Plugin Parameters, Default, and Constructor
+    ------------------------------------------------------------------------------------------------- */
     var pluginName = 'Kenburns',
         defaults = {
             images:[],
@@ -44,6 +45,8 @@ KenBurns Image Rotator
     }
 
 
+    /*  Initialization
+    ------------------------------------------------------------------------------------------------- */
     Plugin.prototype.init = function () {
         // Place initialization logic here
         // You already have access to the DOM element and
@@ -59,10 +62,15 @@ KenBurns Image Rotator
         this.has3d = has3DTransforms();
 
         for (i in list) {
-        	//this.attachImage(list[i], "image"+i , i);
+        	this.attachImage(list[i], "image"+i , i);
         	imagesObj["image"+i] = {};
         	imagesObj["image"+i].loaded = false;
         }
+
+        var loader = $('<div/>');
+        loader.addClass('loader');
+        loader.css({'position':'absolute','left':this.width-40,'top':6,'z-index':10000});
+        $(this.element).prepend(loader);
 
         //var that = this;
         // imagesObj["image"+0] = {};
@@ -121,6 +129,8 @@ KenBurns Image Rotator
         img.load(function() {
         	imagesObj["image"+index].element = this;
         	imagesObj["image"+index].loaded  = true;
+            imagesObj["image"+index].width = $(this).width();
+            imagesObj["image"+index].width = $(this).height();
             that.insertAt(index,wrapper);
             that.resume(index);
 		});
@@ -133,6 +143,8 @@ KenBurns Image Rotator
         //first image has loaded
         if(index == 0) {
             this.startTransition(0);
+            $(this.element).find('.loader').hide();
+
         }
 
         //if the next image hasnt loaded yet, but the transition has started, 
@@ -141,19 +153,22 @@ KenBurns Image Rotator
         if(index == this.holdup) {
             //console.log("resuming");
             $('#status').html("");
-
+            $(this.element).find('.loader').hide();
             this.startTransition(this.holdup);
         }
 
         //if the last image in the set has loaded, add the images in order
         //fire the complete event
-        if(this.checkLoadProgress() == true){
-            this.options.onLoadingComplete();
-            //reset the opacities and z indexes except the last and first
-            $(this.element).find('stalled').each(function(index){
-                $(this).css({'opacity':1,'z-index':1});
-            })
+        if(this.checkLoadProgress() == true) {
             
+            //reset the opacities and z indexes except the last and first
+            $(this.element).find('.stalled').each(function(){
+                $(this).css({'opacity':1,'z-index':1});
+                $(this).removeClass('stalled');
+            });
+
+            //fire the complete thing
+            this.options.onLoadingComplete();
         }
     }
 
@@ -172,6 +187,7 @@ KenBurns Image Rotator
     Plugin.prototype.wait = function() {
         clearInterval(this.interval);
         $('#status').html("loading");
+        $(this.element).find('.loader').show();
         //pause animation in the middle.
         //imagesObj["image"+currentSlide].stop(); 
          var image = imagesObj["image"+(currentSlide-1)].element;
@@ -193,23 +209,25 @@ KenBurns Image Rotator
         that.doTransition();
 		this.interval = setInterval(function(){
 
+            //Advance the current slide
             if(currentSlide < that.maxSlides-1){
                 currentSlide++;
             }else {
                 currentSlide = 0;
             }
- 
+            
+            //Check if the next slide is loaded. If not, wait.
             if(imagesObj["image"+currentSlide].loaded == false){
                 that.holdup = currentSlide;
-                
                 that.wait();
 
-                //currentSlide = 0;
+            //if the next slide is loaded, go ahead and do the transition. 
             }else {
                 that.doTransition();
             }
 
             //Fire the completion action
+            //that.options.onSlideComplete();
 
 		},this.options.duration);
 	}
@@ -225,10 +243,9 @@ KenBurns Image Rotator
     Plugin.prototype.chooseCorner = function() {
         var scale = this.options.scale; 
         var image = imagesObj["image"+currentSlide].element;
-        var sw = $(image).width();
-        var sh = $(image).height();
-        var dx = Math.round((this.width  - (sw*scale))*100)/100;
-        var dy = Math.round((this.height - (sh*scale))*100)/100;
+        var sw = image.width;
+        var sh = image.height;
+        //alert(this.width);
 
         var corners = [
             {x:0,y:0},
@@ -247,11 +264,13 @@ KenBurns Image Rotator
 
         //build the new coordinates from the chosen coordinates
         var coordinates = {
-            startX: start.x * dx,
-            startY: start.y * dy,
-            endX: end.x * dx * (1+(1-scale)),
-            endY: end.y * dy * (1+(1-scale))
+            startX: start.x * (this.width - sw*scale) ,
+            startY: start.y * (this.height - sh*scale),
+            endX: end.x * (this.width - sw),
+            endY: end.y * (this.height - sh)
         }
+
+       //console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
 
         return coordinates;
     }
@@ -341,8 +360,6 @@ KenBurns Image Rotator
             });
        //}
     }
-
-   
 
 
 
