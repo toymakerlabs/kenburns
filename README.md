@@ -1,21 +1,22 @@
 Kenburns
 ========
-Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ effect. [^1]
+ Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect.
 
 
 Overview & Features
 -------------------
+Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does a few pretty neat things: 
 
-* Feature detection for CSS3 transitions and transforms
+* Uses super smooth webkit and moz transitions applied by Jquery
+* Applies feature detection for CSS3 transforms before it uses them
 * Uses Jquery Animation when CSS3 transforms are not available
-* Loads images asyncronously and in parallel but maintains order
-
+* Loads images in parallel but maintains the order you specify
+* Has built-in event callbacks that you can hook into
 
 
 Browser Support
--------------------
+-------
 Testing conducted in: ie8 +, Chrome 18.0.1025.165, Safari 6, Firefox 11, and iOS 5.
-
 
 
 Usage
@@ -31,11 +32,10 @@ Basic plugin use looks like this:
     })
 
 
-
 Example
--------------------
+------------
 #####1. HTML
-First create a wrapper element. For movement to take place, the wrapper must be smaller than the smallest image multiplied by scale. See the _**how it works**_ section for info on how to size your wapper and images. 
+First create a wrapper element. For movement to take place, the wrapper must be smaller than the smallest image multiplied by the scale. See the _**how it works**_ section for info on how to appropriately size your wrapper and images. 
 
         <div id="kenburns_slideshow"></div>  
     
@@ -96,7 +96,7 @@ How it Works
 ######Loading
 The plugin loads images asynchronously, and in parallel. It uses a manager to maintain the order of the images as they are passed in the _**images**_ parameter. 
 
-The transition starts once the first image has loaded. If it encounters an image that hasnt loaded, the script pauses and shows a loading animation. When the image finishing loading, the transition resumes on its merry way. 
+The transition starts once the first image has loaded. If it encounters an image that hasn't loaded, the script pauses and shows a loading animation. When the image finishing loading, the transition resumes on its merry way. 
 
 
 ######Image Sizing & Animation
@@ -120,8 +120,6 @@ _Note: The plugin scales images **down** initially. The scaled image size must b
     image width * scale
     image height * scale
      
-
-
 
 List of Parameters
 -------------------
@@ -154,22 +152,22 @@ A callback function when the images have finished loading.
 
 
 Dependencies
--------------------
+-----
 Jquery 1.8.2.
 
 It will probably work fine in previous versions but it hasn't yet been tested. 
 
 
 Credits
--------------------
-by John @ Toymakerlabs
+------
+by John the Toymaker<br/>
+John @ Toymakerlabs<br/>
 <http://www.toymakerlabs.com>
-Licensed under the MIT license. 
 
-Special thanks to: [jquery](http://www.jquery.com/) and the [jquery plugin boilerplate](http://jqueryboilerplate.com). And of course, as always, Stackoverflow and Google, books, string cheese, greek-yogurt, and Boddingtons. 
-
+Special thanks to: The [Jquery](http://www.jquery.com/) team and the [Jquery plugin boilerplate](http://jqueryboilerplate.com). And of course, as always, Stackoverflow and Google, and books, and greek-yogurt, and Boddingtons. And Crepevine.  
 
 
-[^1]: Note: This plugin only draws stylistic inspiration and is in no way affiliated with or endorsed by flimmaker Ken Burns. 
+
+*Note This plugin only draws stylistic inspiration and is in no way affiliated with or endorsed by filmmaker Ken Burns. 
 
 

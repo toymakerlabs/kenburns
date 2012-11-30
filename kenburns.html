@@ -6,7 +6,6 @@
 <body>
 	<div id="kenburns_slideshow"></div>
 	<h2 id="slide-title"></h2>
-	<h2 id="status"></h2>
 	<button type="button" id="button0">image 0</button>
 	<button type="button" id="button1">image 1</button>
 	<button type="button" id="button2">image 2</button>
@@ -18,12 +17,14 @@
 	<script type="text/javascript" src="js/kenburns.js"></script>
 	<script type="text/javascript">
 
-	var titles = ["Best Buy image 1","Dead Island","Best Buy image 2"];
+	var titles = ["Epic Day at Refugio",
+				  "Colors of Spring",
+				  "First Flowers",
+				  "Magic Hour at Sands Beach",
+				  "Coal Oil Point",
+				  "Hope Ranch Views"];
 
 	$(document).ready(function() {
-		//to make it not move
-		//make the images exactly the size of the window
-	    // attach the plugin to an element
 	    $('#kenburns_slideshow').Kenburns({
 	    	images: [
 	    		"images/image0.jpg",
@@ -32,13 +33,6 @@
 	    		"images/image3.jpg",
 	    		"images/image4.jpg",
 	    		"images/image5.jpg",
-	    		"images/image6.jpg",
-	    		"images/image7.jpg",
-	    		"images/image8.jpg",
-	    		"images/image9.jpg",
-	    		"images/image10.jpg",
-	    		"images/image11.jpg",
-	    		"images/image12.jpg"
 	    	],
 	    	scale:0.75,
 	    	duration:8000,
@@ -46,26 +40,13 @@
 	    	ease3d:'cubic-bezier(0.445, 0.050, 0.550, 0.950)',
 
 	    	onSlideComplete: function(){
-	    		//alert("done!");
 	    		$('#slide-title').html(titles[this.getSlideIndex()]);
 	    	},
 	    	onLoadingComplete: function(){
-	    		//alert("done!");
 	    		//console.log('image loading complete');
 	    	}
 
 	    });
-
-
-	    //$('#kenburns_slideshow').attachImage("images/708x472_digital_future.jpg");
-
-
-	    // // call a public method
-	    // $('#element').pluginName('foo_public_method');
-
-	    // // get the value of a property
-	    // $('#element').pluginName.settings.foo;
-
 	});
 	</script>
 </body>
