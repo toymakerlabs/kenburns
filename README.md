@@ -16,7 +16,7 @@ Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does 
 
 Browser Support
 -------
-Testing conducted in: ie8 +, Chrome 18.0.1025.165, Safari 6, Firefox 11, and iOS 5.
+Testing conducted in: ie8 +, Chrome 18.0.1025.165, Safari 5+6, Firefox 11, and iOS 5.
 
 
 Usage
