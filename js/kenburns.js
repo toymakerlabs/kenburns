@@ -86,7 +86,7 @@
 
         var loader = $('<div/>');
         loader.addClass('loader');
-        loader.css({'position':'absolute','left':this.width-40,'top':6,'z-index':10000});
+        loader.css({'position':'absolute','z-index':10000});
         $(this.element).prepend(loader);
 
         //var that = this;

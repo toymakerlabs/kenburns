@@ -1,22 +1,22 @@
 Kenburns
 ========
- Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect.
+ Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect.
 
 
 Overview & Features
 -------------------
 Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does a few pretty neat things: 
 
-* Uses super smooth webkit and moz transitions applied by Jquery
-* Applies feature detection for CSS3 transforms before it uses them
-* Uses Jquery Animation when CSS3 transforms are not available
-* Loads images in parallel but maintains the order you specify
-* Has built-in event callbacks that you can hook into
+* Uses super smooth webkit and moz transitions
+* Feature Detection for CSS3 transitions without UA sniffing
+* Falls back to Jquery Animation when CSS3 transforms are not available
+* Loads images in parallel but maintains order
+* Built-in event callbacks that you can hook into
 
 
 Browser Support
 -------
-Testing conducted in: ie8 +, Chrome 18.0.1025.165, Safari 6, Firefox 11, and iOS 5.
+Testing conducted in: IE8+, Chrome 18.0.1025.165, Safari 6, Firefox 11, and iOS 5.
 
 
 Usage
@@ -86,7 +86,7 @@ Then initialize the plugin. In the example below, it should log the current slid
         onLoadingComplete: function(){
             console.log('image loading complete');
         }
-    })
+    });
     
 
 

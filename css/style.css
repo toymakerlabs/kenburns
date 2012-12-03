@@ -53,6 +53,8 @@ it pops up a little loading wheel. */
 .loader {
 	width:32px;
 	height:32px;
+	top:6px;
+	left:560px;
 	background:url(../images/loading_circle.gif);
 }
 
