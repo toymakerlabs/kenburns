@@ -4,8 +4,13 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-	<div id="kenburns_slideshow"></div>
-	<h2 id="slide-title"></h2>
+	<div id="kenburns-slideshow"></div>
+	<div id="kenburns-description">
+		<h1 id="status">Loading Images..</h1>
+		<h1 id="slide-title"></h1>
+		<h1 class="title">Kenburns.js</h1>
+		<p>Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads images and features an animated, pan-and-zoom, Ken Burns style effect.</p>
+	</div>
 	<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="js/kenburns.js"></script>
 	
@@ -18,14 +23,14 @@
 				  "Hope Ranch Views"];
 
 	$(document).ready(function() {
-	    $('#kenburns_slideshow').Kenburns({
+	    $('#kenburns-slideshow').Kenburns({
 	    	images: [
 	    		"images/image0.jpg",
 	    		"images/image1.jpg",
 	    		"images/image2.jpg",
 	    		"images/image3.jpg",
 	    		"images/image4.jpg",
-	    		"images/image5.jpg",
+	    		"images/image5.jpg"
 	    	],
 	    	scale:0.75,
 	    	duration:8000,
@@ -36,7 +41,7 @@
 	    		$('#slide-title').html(titles[this.getSlideIndex()]);
 	    	},
 	    	onLoadingComplete: function(){
-	    		//console.log('image loading complete');
+	    		$('#status').html("Loading Complete");
 	    	}
 
 	    });

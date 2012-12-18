@@ -1,5 +1,6 @@
 
 body {
+	font-family: Arial,sans-serif;
 	background-color: #D9D9D9;
 }
 
@@ -15,11 +16,11 @@ if the image size is smaller than the frame size,
 gaps may appear. If image sizes are exactly the same,
 the images will fade over one another and not move. 
 */
-#kenburns_slideshow {
+#kenburns-slideshow {
 	position: relative;
 	width:600px;
 	height: 360px;
-	background-color:black;
+	background-color:#292929;
 	border:22px solid #191919;
 	z-index: 1;
 	overflow: hidden;
@@ -49,12 +50,68 @@ backface-visibility gives some performance boosts.*/
 
 
 /* If the script encounters an image that hasnt loaded,
-it pops up a little loading wheel. */
+it pops up a little loading wheel. I used a little CSS3
+but you could also use a gif to better handle ie8*/
 .loader {
 	width:32px;
 	height:32px;
 	top:6px;
-	left:560px;
-	background:url(../images/loading_circle.gif);
+	left:550px;
+	border:5px solid rgba(128,128,128,0.9);
+	opacity:.9;
+	border-top:5px solid rgba(0,0,0,0);
+	border-left:5px dotted rgba(0,0,0,0);
+	border-radius:32px;
+	-moz-animation:spin .7s infinite linear;
+	-webkit-animation:spin .7s infinite linear;
+}
+
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-moz-keyframes spinoff {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(-360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@-webkit-keyframes spinoff {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(-360deg); }
+}
+
+#kenburns-description{
+	width: 600px;
+	background-color:#191919;
+	color:#999;
+	padding:0 22px 22px 22px;
+
+}
+
+#kenburns-description p{
+	margin:0;
+	padding:0;
+	line-height: 18px;
+	font-size:12px;
+
+}
+.title {
+	clear: left;
+	margin:0;
+	padding:15px 0 0 0;
+}
+#slide-title{
+	font-size: 12px;
+	float:left;
+	color:#7085B3;
+}
+#status{
+	color:#333;
+	font-size: 12px;
+	float:right;
+	clear: right;
 }
 

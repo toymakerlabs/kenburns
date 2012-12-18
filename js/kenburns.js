@@ -1,10 +1,10 @@
 /*
  * Jquery Kenburns Image Gallery
- * Original author: John @ Toymakerlabs
- * Further changes, comments: @Toymakerlabs
+ * Original author: John [at] Toymakerlabs
+ * Further changes, comments: [at]Toymakerlabs
  * Licensed under the MIT license
  * 
- * Copyright (c) 2012 ToymakerLabs
+ * Copyright (c) 2013 ToymakerLabs
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,10 +21,9 @@
  *
 */
 
-
 ;(function ( $, window, document, undefined ) {
 
-    /*  Plugin Parameters, Default, and Constructor
+    /*  Plugin Parameters
     ------------------------------------------------------------------------------------------------- */
     var pluginName = 'Kenburns',
         defaults = {
@@ -44,15 +43,8 @@
     var imagesObj = {};
     var currentSlide = 0;
 
-    // The actual plugin constructor
     function Plugin( element, options ) {
         this.element = element;
-
-        // jQuery has an extend method that merges the 
-        // contents of two or more objects, storing the 
-        // result in the first object. The first object 
-        // is generally empty because we don't want to alter 
-        // the default options for future instances of the plugin
         this.options = $.extend( {}, defaults, options) ;
         this._defaults = defaults;
         this._name = pluginName;
@@ -62,14 +54,14 @@
     }
 
 
-    /*  Initialization
+    /*  1. Initialization
     ------------------------------------------------------------------------------------------------- */
+    /**
+     * Init
+     * Initial setup - dermines width, height, and adds the loading icon. 
+     */
     Plugin.prototype.init = function () {
-        // Place initialization logic here
-        // You already have access to the DOM element and
-        // the options via the instance, e.g. this.element 
-        // and this.options
-       // var container = $(this.element);
+
         var list = this.options.images;
         var that = this;
 
@@ -79,47 +71,30 @@
         this.has3d = has3DTransforms();
 
         for (i in list) {
+            imagesObj["image"+i] = {};
+            imagesObj["image"+i].loaded = false;
         	this.attachImage(list[i], "image"+i , i);
-        	imagesObj["image"+i] = {};
-        	imagesObj["image"+i].loaded = false;
+        	
         }
 
         var loader = $('<div/>');
         loader.addClass('loader');
         loader.css({'position':'absolute','z-index':10000});
         $(this.element).prepend(loader);
-
-        //var that = this;
-        // imagesObj["image"+0] = {};
-        // imagesObj["image"+0].loaded = true;
-        // imagesObj["image"+1] = {};
-        // imagesObj["image"+1].loaded = false;
-        // imagesObj["image"+2] = {};
-        // imagesObj["image"+2].loaded = false;
-        // imagesObj["image"+3] = {};
-        // imagesObj["image"+3].loaded = false;
-        // imagesObj["image"+4] = {};
-        // imagesObj["image"+4].loaded = false;
-
-
-
-
-        $(document).find('button').each(function(index){
-            $(this).click(function(e){
-                that.attachImage(list[index], "image"+index , index);
-               // imagesObj["image"+index].loaded = true;
-               // imagesObj["image"+index].element = true;
-                //that.resume(index);
-            })
-        })
-
     };
 
 
-    /*  Loading and Setup
-    ------------------------------------------------------------------------------------------------- */
 
-    //Load Images in parallell but keep track of the order. 
+    /*  2. Loading and Setup
+    ------------------------------------------------------------------------------------------------- */
+   
+    /**
+     * Attach image
+     * creates a wrapper div for the image along with the image tag. The reason for the additional
+     * wrapper is that we are transitioning multiple properties at the same time: scale, position, and
+     * opacity. But we want opacity to finish first. This function also determines if the browser
+     * has 3d transform capabilities and initializes the starting CSS values. 
+     */
     Plugin.prototype.attachImage = function(url,alt_text,index) {
     	var that = this;
 
@@ -134,6 +109,7 @@
 
         wrapper.html(img);
 
+        //First check if the browser supports 3D transitions, initialize the CSS accordingly
         if(this.has3d) {
             img.css({'-webkit-transform-origin':'left top'});
             img.css({'-moz-transform-origin':'left top'});
@@ -141,8 +117,11 @@
             img.css({'-moz-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
         }
 
+        //Switch the transition to the 3d version if it does exist
         this.doTransition = (this.has3d)?this.transition3d:this.transition;
 
+
+        //set up the image OBJ parameters - used to track loading and initial dimensions
         img.load(function() {
         	imagesObj["image"+index].element = this;
         	imagesObj["image"+index].loaded  = true;
@@ -154,7 +133,11 @@
 
 	}
 
-
+    /**
+     * Resume
+     * Resume will continue the transition after the stalled image loads
+     * it also fires the complete action when the series of images finishes loading
+     */
     Plugin.prototype.resume = function(index){
 
         //first image has loaded
@@ -168,17 +151,14 @@
         // this will match the image index to the image holding the transition.
         // it will then resume the transition.
         if(index == this.holdup) {
-            //console.log("resuming");
             $('#status').html("");
             $(this.element).find('.loader').hide();
             this.startTransition(this.holdup);
         }
 
         //if the last image in the set has loaded, add the images in order
-        //fire the complete event
         if(this.checkLoadProgress() == true) {
-            
-            //reset the opacities and z indexes except the last and first
+            //reset the opacities and z indexes except the last and first images
             $(this.element).find('.stalled').each(function(){
                 $(this).css({'opacity':1,'z-index':1});
                 $(this).removeClass('stalled');
@@ -191,22 +171,25 @@
 
     //if any of the slides are not loaded, the set has not finished loading. 
     Plugin.prototype.checkLoadProgress = function() {
-        var loaded = true;
+        var imagesLoaded = true;
          for(i=0;i<this.maxSlides;i++){
             if (imagesObj["image"+i].loaded == false){
-                loaded = false;
+                imagesLoaded = false;
             }
         }
-        return loaded;
+        return imagesLoaded;
     }
 
-
+    /**
+     * Wait
+     * Stops the transition interval, shows the loader and
+     * applies the stalled class to the visible image. 
+     */
     Plugin.prototype.wait = function() {
         clearInterval(this.interval);
         $('#status').html("loading");
         $(this.element).find('.loader').show();
-        //pause animation in the middle.
-        //imagesObj["image"+currentSlide].stop(); 
+
          var image = imagesObj["image"+(currentSlide-1)].element;
          $(image).parent().stop(true,true);
          $(image).parent().addClass('stalled');
@@ -214,11 +197,15 @@
 
 
 
-
-    /*  Transitions and Movement
+    /* 3. Transitions and Movement
     ------------------------------------------------------------------------------------------------- */
 
-    //test comment
+    /**
+     * startTransition
+     * Begins the Gallery Transition and tracks the current slide
+     * Also manages loading - if the interval encounters a slide
+     * that has not loaded, the transition pauses. 
+     */
 	Plugin.prototype.startTransition = function(start_index) {
 	    var that = this;
 	    currentSlide = start_index; //current slide
@@ -242,9 +229,6 @@
             }else {
                 that.doTransition();
             }
-
-            //Fire the completion action
-            //that.options.onSlideComplete();
 
 		},this.options.duration);
 	}
@@ -286,8 +270,6 @@
             endX: end.x * (this.width - sw),
             endY: end.y * (this.height - sh)
         }
-
-       //console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
 
         return coordinates;
     }
@@ -364,25 +346,15 @@
         var that = this;
         var image = imagesObj["image"+currentSlide].element;
 
-       //  if(currentSlide < this.maxSlides-1){
-       //      nextSlide = currentSlide + 1;
-       //  }else {
-       //      nextSlide = 0;
-       //  }
-
-       //  //
-       // if(imagesObj["image"+nextSlide].loaded) {
-            $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
-                $(this).css({'z-index':1});
-            });
-       //}
+        $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
+            $(this).css({'z-index':1});
+        });
     }
 
 
 
-    /*  Utility Functions
+    /* 4. Utility Functions
     ------------------------------------------------------------------------------------------------- */
-
     /** 
      *  has3DTransforms
      *  Tests the browser to determine support for Webkit and Moz Transforms
@@ -416,7 +388,6 @@
      *  Used to maintain the order of images as they are loaded and
      *  added to the DOM
      */
-    
     Plugin.prototype.insertAt = function (index, element) {
         var lastIndex = $(this.element).children().size();
         if (index < 0) {

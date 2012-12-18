@@ -8,10 +8,10 @@ Overview & Features
 Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does a few pretty neat things: 
 
 * Uses super smooth webkit and moz transitions
-* Feature Detection for CSS3 transitions without UA sniffing
-* Falls back to Jquery Animation when CSS3 transforms are not available
-* Loads images in parallel but maintains order
-* Built-in event callbacks that you can hook into
+* Built in feature detection for CSS3 transforms
+* Uses Jquery Animations when CSS3 transforms are not available
+* Loads images in parallel but maintains the galleryorder
+* Built-in event callbacks for loading complete, and transition complete
 
 
 Browser Support
