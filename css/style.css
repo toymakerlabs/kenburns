@@ -98,6 +98,19 @@ but you could also use a gif to better handle ie8*/
 	font-size:12px;
 
 }
+
+#kenburns-description a{
+	color:white;
+	text-decoration: none;
+}
+#kenburns-description a:hover{
+	color:green;
+	text-decoration: none;
+}
+
+#kenburns-description a:visited{
+	color:white;
+}
 .title {
 	clear: left;
 	margin:0;
