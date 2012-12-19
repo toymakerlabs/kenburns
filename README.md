@@ -12,7 +12,7 @@ Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does 
 * Uses super smooth webkit and moz transitions
 * Built in feature detection for CSS3 transforms
 * Uses Jquery Animations when CSS3 transforms are not available
-* Loads images in parallel but maintains the galleryorder
+* Loads images in parallel but maintains the gallery order
 * Built-in event callbacks for loading complete, and transition complete
 
 
