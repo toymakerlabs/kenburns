@@ -244,9 +244,18 @@
     Plugin.prototype.chooseCorner = function() {
         var scale = this.options.scale; 
         var image = imagesObj["image"+currentSlide].element;
-        var sw = image.width;
-        var sh = image.height;
-        //alert(this.width);
+
+        var ratio = image.height/image.width;
+        var sw = Math.floor($(this.element).width()*(1/scale));
+        var sh = Math.floor($(this.element).width()*ratio*(1/scale));
+
+        $(image).width(sw);
+        $(image).height(sh);
+
+        var w = $(this.element).width();
+        var h = $(this.element).height();
+
+        //console.log(sw+ ", " + this.width);
 
         var corners = [
             {x:0,y:0},
@@ -265,11 +274,14 @@
 
         //build the new coordinates from the chosen coordinates
         var coordinates = {
-            startX: start.x * (this.width - sw*scale) ,
-            startY: start.y * (this.height - sh*scale),
-            endX: end.x * (this.width - sw),
-            endY: end.y * (this.height - sh)
+            startX: start.x * (w - sw*scale) ,
+            startY: start.y * (h - sh*scale),
+            endX: end.x * (w - sw),
+            endY: end.y * (h - sh)
         }
+
+      //
+      //  console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
 
         return coordinates;
     }
