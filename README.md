@@ -14,6 +14,7 @@ Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does 
 * Uses Jquery Animations when CSS3 transforms are not available
 * Loads images in parallel but maintains the gallery order
 * Built-in event callbacks for loading complete, and transition complete
+* Allows for dynamic image sources - if new images are added during the slideshow, they will be appended to the current slideshow
 
 
 Browser Support
@@ -30,7 +31,8 @@ Basic plugin use looks like this:
         scale:1,
         duration:6000,
         fadeSpeed:800,
-        ease3d:ease-out
+        ease3d:ease-out,
+        dynamic: getNewImages.php 
     })
 
 
@@ -141,6 +143,10 @@ Millisecond value representing how long the transition will last *Note: The plug
 
 ######ease3d: _'string'_
 Optional string value to control the easing of the transition. Accepts CSS3 easing functions like 'ease-out', 'ease-in-out', 'cubic-bezier()'
+
+######dynamic: _'string'_
+Optional string value to set the name of the script to which an ajax request will be made to get new images. This script should be in the same directory as the root index page.
+It is assumed the script will return a CSV list of URLs to images to include.
 
 ######onSlideComplete: _function()_
 A callback when each slide completes its transition. Used for things like changing the text relating to the image, etc

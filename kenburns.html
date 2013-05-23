@@ -4,49 +4,59 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-	<div id="kenburns-slideshow"></div>
-	<div id="kenburns-description">
-		<h1 id="status">Loading Images..</h1>
-		<h1 id="slide-title"></h1>
-		<h1 class="title"><a href="http://www.github.com/toymakerlabs/kenburns/" target="blank">Kenburns.js
-		</a></h1>
-		<p>Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads images and features an animated, pan-and-zoom, Ken Burns style effect. Grab the source from my <a href="http://www.github.com/toymakerlabs/kenburns/" target="blank"> Github</a></p>
-	</div>
+	<div id="wrapper"><div id="kenburns-slideshow"></div></div>
 	<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="js/kenburns.js"></script>
 	
 	<script type="text/javascript">
-	var titles = ["Epic Day at Refugio",
-				  "Colors of Spring",
-				  "First Flowers",
-				  "Magic Hour at Sands Beach",
-				  "Coal Oil Point",
-				  "Hope Ranch Views"];
+	var titles = [];
 
-	$(document).ready(function() {
-	    $('#kenburns-slideshow').Kenburns({
-	    	images: [
-	    		"images/image0.jpg",
-	    		"images/image1.jpg",
-	    		"images/image2.jpg",
-	    		"images/image3.jpg",
-	    		"images/image4.jpg",
-	    		"images/image5.jpg"
-	    	],
-	    	scale:0.75,
-	    	duration:8000,
-	    	fadeSpeed:1200,
-	    	ease3d:'cubic-bezier(0.445, 0.050, 0.550, 0.950)',
-
-	    	onSlideComplete: function(){
-	    		$('#slide-title').html(titles[this.getSlideIndex()]);
-	    	},
-	    	onLoadingComplete: function(){
-	    		$('#status').html("Loading Complete");
-	    	}
-
-	    });
+	var cycleCount = 0;
+	var image_array;
+	
+	$("#kenburns-slideshow").width($(window).width());
+	$("#kenburns-slideshow").height($(window).height());
+	var kenBurnsParams;
+	
+	function getNewImages()
+	{
+		timeStamp = new Date().getTime();
+		$.ajax(
+		{
+			url: 'getImages.php?start=0&rnd='+timeStamp,
+			success:function(data)
+			{
+				image_array=data.split(",");
+				doSlideshow();
+			}
+		});
+	}
+	
+	$(document).ready(function() 
+	{
+		getNewImages();
 	});
+	
+	function doSlideshow()
+	{
+		kenBurnsParams = null;
+		kenBurnsParams = new Object();
+		kenBurnsParams.images = image_array;
+		kenBurnsParams.scale = 0.85;
+		kenBurnsParams.duration = 10000;
+		kenBurnsParams.fadeSpeed = 1000;
+		kenBurnsParams.ease3d = 'cubic-bezier(0.445, 0.050, 0.550, 0.950)';
+		kenBurnsParams.dynamic = 'getImages.php'
+		kenBurnsParams.onLoadingComplete = function()
+		{
+			/*console.log("loading complete");*/
+		}
+		kenBurnsParams.onSlideComplete = function()
+		{
+			//console.log("Current Slide = "+this.getSlideIndex());
+		}
+		$('#kenburns-slideshow').Kenburns(kenBurnsParams);
+	}
 	</script>
 </body>
 </html>

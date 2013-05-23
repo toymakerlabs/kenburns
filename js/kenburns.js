@@ -214,10 +214,50 @@
 		this.interval = setInterval(function(){
 
             //Advance the current slide
-            if(currentSlide < that.maxSlides-1){
+            if(currentSlide < that.maxSlides-1)
+			{
                 currentSlide++;
-            }else {
-                currentSlide = 0;
+            }
+			else 
+			{
+				if(dynamic != "")
+				{
+					//look for new images
+					numImagesRetrieved=that.maxSlides;
+					timeStamp = new Date().getTime();
+					$.ajax(
+					{
+						url: dynamic+'?start='+numImagesRetrieved+'&rnd='+timeStamp,
+						async: false,
+						success:function(data)
+						{
+							if(data != "")
+							{
+								newImages=data.split(",");
+								for (var i=0;i<newImages.length;i++)
+								{
+									imagesObj["image"+that.maxSlides] = {};
+									imagesObj["image"+that.maxSlides].loaded = false;
+									that.attachImage(newImages[i],"image"+that.maxSlides,that.maxSlides);
+									that.maxSlides++;
+								}
+								currentSlide++;
+							}
+							else
+							{
+								currentSlide = 0;
+							}
+						},
+						error: function(xhr, ajaxOptions, thrownError)
+						{
+							alert("ERROR: "+"\n"+thrownError+"\n");
+						}
+					});
+				}
+				else
+				{				
+					currentSlide = 0;
+				}
             }
             
             //Check if the next slide is loaded. If not, wait.
