@@ -30,7 +30,7 @@ Basic plugin use looks like this:
         scale:1,
         duration:6000,
         fadeSpeed:800,
-        ease3d:ease-out
+        ease3d:"ease-out"
     })
 
 
