@@ -211,26 +211,28 @@
 	    currentSlide = start_index; //current slide
 
         that.doTransition();
-		this.interval = setInterval(function(){
-
-            //Advance the current slide
-            if(currentSlide < that.maxSlides-1){
-                currentSlide++;
-            }else {
-                currentSlide = 0;
-            }
-            
-            //Check if the next slide is loaded. If not, wait.
-            if(imagesObj["image"+currentSlide].loaded == false){
-                that.holdup = currentSlide;
-                that.wait();
-
-            //if the next slide is loaded, go ahead and do the transition. 
-            }else {
-                that.doTransition();
-            }
-
-		},this.options.duration);
+        if(this.maxSlides > 1) {
+            this.interval = setInterval(function(){
+    
+                //Advance the current slide
+                if(currentSlide < that.maxSlides-1){
+                    currentSlide++;
+                }else {
+                    currentSlide = 0;
+                }
+                
+                //Check if the next slide is loaded. If not, wait.
+                if(imagesObj["image"+currentSlide].loaded == false){
+                    that.holdup = currentSlide;
+                    that.wait();
+    
+                //if the next slide is loaded, go ahead and do the transition. 
+                }else {
+                    that.doTransition();
+                }
+    
+            },this.options.duration);
+        }
 	}
 
 
@@ -321,7 +323,7 @@
         $(image).css({'-webkit-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
         $(image).css({'-moz-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
 
-        this.transitionOut();
+        if(this.maxSlides > 1) this.transitionOut();
         this.options.onSlideComplete();
     }
 
@@ -350,7 +352,7 @@
         $(image).parent().css({'opacity':0,'z-index':3});
         $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
 
-        this.transitionOut();
+        if(this.maxSlides > 1) this.transitionOut();
         this.options.onSlideComplete();
     }
 
