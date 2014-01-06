@@ -1,17 +1,17 @@
 Kenburns
 ========
- Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect. 
+ Kenburns.js is a lightweight and flexible jQuery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, *[Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)* style effect. 
  
 Example: <http://www.toymakerlabs.com/kenburns>
 
 
 Overview & Features
 -------------------
-Dude, another Jquery gallery? Wait, wait! Before you go, this one actually does a few pretty neat things: 
+Dude, another jQuery gallery? Wait, wait! Before you go, this one actually does a few pretty neat things: 
 
 * Uses super smooth webkit and moz transitions
 * Built in feature detection for CSS3 transforms
-* Uses Jquery Animations when CSS3 transforms are not available
+* Uses jQuery Animations when CSS3 transforms are not available
 * Loads images in parallel but maintains the gallery order
 * Built-in event callbacks for loading complete, and transition complete
 
@@ -82,11 +82,11 @@ Then initialize the plugin. In the example below, it should log the current slid
         duration:6000,
         fadeSpeed:800,
         ease3d:'ease-out',
-        onSlideComplete: function(){
-            console.log('slide ' + this.getSlideIndex());
+        onSlideComplete: function(currentSlideIndex, currentImageDOM, imagesObj, elm){
+            console.log('slide ' + currentSlideIndex);
         },
-        onLoadingComplete: function(){
-            console.log('image loading complete');
+        onLoadingComplete: function(imagesObj, elm){
+            console.log(Object.getOwnPropertyNames(imagesObj).length + ' images loading complete');
         }
     });
     
@@ -142,22 +142,25 @@ Millisecond value representing how long the transition will last *Note: The plug
 ######ease3d: _'string'_
 Optional string value to control the easing of the transition. Accepts CSS3 easing functions like 'ease-out', 'ease-in-out', 'cubic-bezier()'
 
-######onSlideComplete: _function()_
-A callback when each slide completes its transition. Used for things like changing the text relating to the image, etc
+######onSlideComplete: _function(currentSlideIndex, currentImageDOM, imagesObj, elm)_
+A callback when each slide completes its transition. Used for things like changing the text relating to the image, etc.
+Return 4 arguments:
+* `currentSlideIndex` (Number) current slide index
+* `currentImageDOM` (DOM) current showing image element
+* `imagesObj` (JSON) all loaded images object
+* `elm` (DOM) plugin element
 
-######getSlideIndex: _function()_
-A public function that returns the index of the current slide. 
-
-######onLoadingComplete: _function()_
+######onLoadingComplete: _function(imagesObj, elm)_
 A callback function when the images have finished loading. 
+Return 4 arguments:
+* `imagesObj` (JSON) all loaded images object
+* `elm` (DOM) plugin element
 
 
 
 Dependencies
 -----
-Jquery 1.8.2.
-
-It will probably work fine in previous versions but it hasn't yet been tested. 
+jQuery 1.4.0 - 2.0.3 (tested)
 
 
 Credits
@@ -166,7 +169,7 @@ by John the Toymaker<br/>
 John @ Toymakerlabs<br/>
 <http://www.toymakerlabs.com>
 
-Special thanks to: The [Jquery](http://www.jquery.com/) team and the [Jquery plugin boilerplate](http://jqueryboilerplate.com). And of course, as always, Stackoverflow and Google, and books, and greek-yogurt, and Boddingtons. And Crepevine.  
+Special thanks to: The [jQuery](http://www.jquery.com/) team and the [jQuery plugin boilerplate](http://jqueryboilerplate.com). And of course, as always, Stackoverflow and Google, and books, and greek-yogurt, and Boddingtons. And Crepevine.  
 
 
 
