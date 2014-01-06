@@ -26,11 +26,11 @@ Usage
 Basic plugin use looks like this:
 
     $("#wrapper").Kenburns({
-        images:["image0.jpg", "image2.jpg"],
-        scale:1,
+        images: ["image0.jpg", "image2.jpg"],
+        scale: 1,
         duration:6000,
         fadeSpeed:800,
-        ease3d:ease-out
+        ease3d:'ease-out'
     })
 
 
@@ -152,7 +152,7 @@ Return 4 arguments:
 
 ######onLoadingComplete: _function(imagesObj, elm)_
 A callback function when the images have finished loading. 
-Return 4 arguments:
+Return 2 arguments:
 * `imagesObj` (JSON) all loaded images object
 * `elm` (DOM) plugin element
 
