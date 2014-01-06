@@ -22,6 +22,7 @@
 */
 
 ;(function ( $, window, document, undefined ) {
+    "use strict";
 
     /*  Plugin Parameters
     ------------------------------------------------------------------------------------------------- */
@@ -32,16 +33,10 @@
             fadeSpeed:500,
             scale:1,
             ease3d:'cubic-bezier(.81, 0, .26, 1)',
-            onLoadingComplete:function(){},
-            onSlideComplete:function(){},
-            onListComplete:function(){},
-            getSlideIndex:function(){
-                return currentSlide;
-            }
+            onLoadingComplete: function(imagesObj, elm) { },
+            onSlideComplete: function(currentSlideIndex, currentImageDOM, imagesObj, elm) { },
+            onListComplete: function() { }
         };
-
-    var imagesObj = {};
-    var currentSlide = 0;
 
     function Plugin( element, options ) {
         this.element = element;
@@ -62,25 +57,23 @@
      */
     Plugin.prototype.init = function () {
 
-        var list = this.options.images;
-        var that = this;
+        var list = this.options.images,
+            that = this,
+            $element = $(this.element);
 
-        this.width = $(this.element).width();
-        this.height = $(this.element).height();
-
+        this.width = $element.width();
+        this.height = $element.height();
         this.has3d = has3DTransforms();
+        this.imagesObj = {};
 
-        for (i in list) {
-            imagesObj["image"+i] = {};
-            imagesObj["image"+i].loaded = false;
-        	this.attachImage(list[i], "image"+i , i);
-        	
+        for (var i in list) {
+            this.imagesObj["image"+i] = {};
+            this.imagesObj["image"+i].loaded = false;
+            this.attachImage(list[i], "image"+i , i);
         }
 
-        var loader = $('<div/>');
-        loader.addClass('loader');
-        loader.css({'position':'absolute','z-index':10000});
-        $(this.element).prepend(loader);
+        var loader = $('<div/>', { class: 'loader' }).css({ 'position': 'absolute', 'z-index': 10000 });
+        $element.prepend(loader);
     };
 
 
@@ -96,42 +89,42 @@
      * has 3d transform capabilities and initializes the starting CSS values. 
      */
     Plugin.prototype.attachImage = function(url,alt_text,index) {
-    	var that = this;
+        var that = this;
 
         //put the image in an empty div to separate the animation effects of fading and moving
-        var wrapper = $('<div/>');
-        wrapper.attr('class','kb-slide');
-        wrapper.css({'opacity':0});
+        var $wrapper = $('<div/>', { class: 'kb-slide' }).css({'opacity':0});
+        var $img = $("<img />", { 
+            src: url,
+            alt: alt_text
+        });
 
-		var img = $("<img />");
-		img.attr('src', url);
-		img.attr('alt', alt_text);
-
-        wrapper.html(img);
+        $wrapper.html($img);
 
         //First check if the browser supports 3D transitions, initialize the CSS accordingly
-        if(this.has3d) {
-            img.css({'-webkit-transform-origin':'left top'});
-            img.css({'-moz-transform-origin':'left top'});
-            img.css({'-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
-            img.css({'-moz-transform':'scale('+that.options.scale+') translate3d(0,0,0)'});
+        if (this.has3d) {
+            $img.css({
+                '-webkit-transform-origin':'left top',
+                '-moz-transform-origin':'left top',
+                '-webkit-transform':'scale('+that.options.scale+') translate3d(0,0,0)',
+                '-moz-transform':'scale('+that.options.scale+') translate3d(0,0,0)'
+            });
         }
 
         //Switch the transition to the 3d version if it does exist
-        this.doTransition = (this.has3d)?this.transition3d:this.transition;
-
+        this.doTransition = this.has3d ? this.transition3d : this.transition;
 
         //set up the image OBJ parameters - used to track loading and initial dimensions
-        img.load(function() {
-        	imagesObj["image"+index].element = this;
-        	imagesObj["image"+index].loaded  = true;
-            imagesObj["image"+index].width = $(this).width();
-            imagesObj["image"+index].width = $(this).height();
-            that.insertAt(index,wrapper);
+        $img.load(function() {
+            var imgCache = that.imagesObj["image"+index];
+            imgCache.element = this;
+            imgCache.loaded  = true;
+            imgCache.width = $(this).width();
+            imgCache.width = $(this).height();
+            that.insertAt(index, $wrapper);
             that.resume(index);
-		});
+        });
 
-	}
+    };
 
     /**
      * Resume
@@ -139,12 +132,12 @@
      * it also fires the complete action when the series of images finishes loading
      */
     Plugin.prototype.resume = function(index){
+        var $element = $(this.element);
 
         //first image has loaded
         if(index == 0) {
             this.startTransition(0);
-            $(this.element).find('.loader').hide();
-
+            $element.find('.loader').hide();
         }
 
         //if the next image hasnt loaded yet, but the transition has started, 
@@ -152,33 +145,32 @@
         // it will then resume the transition.
         if(index == this.holdup) {
             $('#status').html("");
-            $(this.element).find('.loader').hide();
+            $element.find('.loader').hide();
             this.startTransition(this.holdup);
         }
 
         //if the last image in the set has loaded, add the images in order
         if(this.checkLoadProgress() == true) {
             //reset the opacities and z indexes except the last and first images
-            $(this.element).find('.stalled').each(function(){
-                $(this).css({'opacity':1,'z-index':1});
-                $(this).removeClass('stalled');
+            $element.find('.stalled').each(function() {
+                $(this).css({ 'opacity': 1, 'z-index':1 }).removeClass('stalled');
             });
 
-            //fire the complete thing
-            this.options.onLoadingComplete();
+            //fire the complete thing with 2 arguments: all images object and plugin element
+            this.options.onLoadingComplete(this.imagesObj, this.element);
         }
-    }
+    };
 
     //if any of the slides are not loaded, the set has not finished loading. 
     Plugin.prototype.checkLoadProgress = function() {
         var imagesLoaded = true;
-         for(i=0;i<this.maxSlides;i++){
-            if (imagesObj["image"+i].loaded == false){
+        for (var i = 0; i < this.maxSlides; i++) {
+            if (this.imagesObj["image"+i].loaded == false) {
                 imagesLoaded = false;
             }
         }
         return imagesLoaded;
-    }
+    };
 
     /**
      * Wait
@@ -190,10 +182,9 @@
         $('#status').html("loading");
         $(this.element).find('.loader').show();
 
-         var image = imagesObj["image"+(currentSlide-1)].element;
-         $(image).parent().stop(true,true);
-         $(image).parent().addClass('stalled');
-    }
+        var image = this.imagesObj["image"+(this.currentSlide-1)].element;
+        $(image).parent().stop(true, true).addClass('stalled');
+    };
 
 
 
@@ -206,32 +197,29 @@
      * Also manages loading - if the interval encounters a slide
      * that has not loaded, the transition pauses. 
      */
-	Plugin.prototype.startTransition = function(start_index) {
-	    var that = this;
-	    currentSlide = start_index; //current slide
-
+    Plugin.prototype.startTransition = function (start_index) {
+        var that = this;
+        this.currentSlide = start_index;
         that.doTransition();
-		this.interval = setInterval(function(){
-
+        this.interval = setInterval(function() {
             //Advance the current slide
-            if(currentSlide < that.maxSlides-1){
-                currentSlide++;
-            }else {
-                currentSlide = 0;
+            if (that.currentSlide < that.maxSlides-1) {
+                that.currentSlide++;
+            } else {
+                that.currentSlide = 0;
             }
             
             //Check if the next slide is loaded. If not, wait.
-            if(imagesObj["image"+currentSlide].loaded == false){
-                that.holdup = currentSlide;
+            if (that.imagesObj["image"+that.currentSlide].loaded == false) {
+                that.holdup = that.currentSlide;
                 that.wait();
 
             //if the next slide is loaded, go ahead and do the transition. 
-            }else {
+            } else {
                 that.doTransition();
             }
-
-		},this.options.duration);
-	}
+        }, this.options.duration);
+    };
 
 
     /** 
@@ -242,18 +230,17 @@
     */
    
     Plugin.prototype.chooseCorner = function() {
-        var scale = this.options.scale; 
-        var image = imagesObj["image"+currentSlide].element;
+        var scale = this.options.scale,
+            image = this.imagesObj["image"+this.currentSlide].element,
+            ratio = image.height/image.width,
+            $element = $(this.element),
+            sw = Math.floor($element.width()*(1/scale)),
+            sh = Math.floor($element.width()*ratio*(1/scale));
 
-        var ratio = image.height/image.width;
-        var sw = Math.floor($(this.element).width()*(1/scale));
-        var sh = Math.floor($(this.element).width()*ratio*(1/scale));
+        $(image).width(sw).height(sh);
 
-        $(image).width(sw);
-        $(image).height(sh);
-
-        var w = $(this.element).width();
-        var h = $(this.element).height();
+        var w = $element.width();
+        var h = $element.height();
 
         //console.log(sw+ ", " + this.width);
 
@@ -274,7 +261,7 @@
 
         //build the new coordinates from the chosen coordinates
         var coordinates = {
-            startX: start.x * (w - sw*scale) ,
+            startX: start.x * (w - sw*scale),
             startY: start.y * (h - sh*scale),
             endX: end.x * (w - sw),
             endY: end.y * (h - sh)
@@ -297,33 +284,34 @@
     */
 
     Plugin.prototype.transition3d = function () {
-        var that  = this;
-        var scale = this.options.scale; 
-        var image = imagesObj["image"+currentSlide].element;
-        var position = this.chooseCorner();
-
+        var that  = this,
+            scale = this.options.scale,
+            image = this.imagesObj["image"+this.currentSlide].element,
+            position = this.chooseCorner();
 
         //First clear any existing transition
-        $(image).css({'-webkit-transition':'none'});
-        $(image).css({'-moz-transition':'none'});
-        $(image).css({'-webkit-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)'});
-        $(image).css({'-moz-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)'});
-
+        $(image).css({
+            '-webkit-transition':'none',
+            '-moz-transition':'none',
+            '-webkit-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)',
+            '-moz-transform':'scale('+scale+') translate3d('+position.startX+'px,'+position.startY+'px,0)'
+        })
         //Set the wrapper to fully transparent and start it's animation
-        $(image).parent().css({'opacity':0,'z-index':'3'});
-        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
-
-        //Add the transition back in
-        $(image).css({'-webkit-transition':'-webkit-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d});
-        $(image).css({'-moz-transition':'-moz-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d});
-
-        //set the end position and scale, which fires the transition
-        $(image).css({'-webkit-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
-        $(image).css({'-moz-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'});
+        .parent().css({ 'opacity': 0, 'z-index': '3' }).animate({ 'opacity': 1 }, that.options.fadeSpeed)
+        .end().css({
+            //Add the transition back in
+            '-webkit-transition':'-webkit-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d,
+            '-moz-transition':'-moz-transform '+(that.options.duration+that.options.fadeSpeed)+'ms '+that.options.ease3d,
+            //set the end position and scale, which fires the transition
+            '-webkit-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)',
+            '-moz-transform':'scale(1) translate3d('+position.endX+'px,'+position.endY+'px,0)'
+        });
 
         this.transitionOut();
-        this.options.onSlideComplete();
-    }
+
+        // returns 4 new arguments: current slide index, current image DOM, all images object, and plugin element
+        this.options.onSlideComplete(this.currentSlide, image, this.imagesObj, this.element);
+    };
 
 
 
@@ -337,31 +325,33 @@
      */
 
     Plugin.prototype.transition = function() {
-        var that  = this;
-        var scale = this.options.scale; 
-        var image = imagesObj["image"+currentSlide].element;
-        var sw = $(image).width();
-        var sh = $(image).height();
-        var position = this.chooseCorner();
+        var that  = this,
+            scale = this.options.scale,
+            image = this.imagesObj["image"+this.currentSlide].element,
+            $image = $(image),
+            sw = $image.width(),
+            sh = $image.height(),
+            position = this.chooseCorner();
 
-        $(image).css({'left':position.startX,'top':position.startY,'width':sw*(scale),'height':sh*(scale)});
-        $(image).animate({'left':position.endX,'top':position.endY,'width':sw,'height':sh}, that.options.duration + that.options.fadeSpeed);
-        
-        $(image).parent().css({'opacity':0,'z-index':3});
-        $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
+        $image
+            .css({left:position.startX,top:position.startY,width:sw*(scale),height:sh*(scale)})
+            .animate({left:position.endX,top:position.endY,width:sw,height:sh},that.options.duration + that.options.fadeSpeed)
+            .parent().css({ 'opacity': 0, 'z-index': 3 }).animate({ 'opacity': 1 }, that.options.fadeSpeed);
 
         this.transitionOut();
-        this.options.onSlideComplete();
-    }
+
+        // returns 4 new arguments: current slide index, current image DOM, all images object, and plugin element
+        this.options.onSlideComplete(this.currentSlide, image, this.imagesObj, this.element);
+    };
 
     Plugin.prototype.transitionOut = function() {
-        var that = this;
-        var image = imagesObj["image"+currentSlide].element;
+        var that = this,
+            image = this.imagesObj["image"+this.currentSlide].element;
 
         $(image).parent().delay(that.options.duration).animate({'opacity':0},that.options.fadeSpeed, function(){
             $(this).css({'z-index':1});
         });
-    }
+    };
 
 
 
@@ -391,7 +381,7 @@
         }
 
         document.body.removeChild(el);
-        return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
+        return has3d !== undefined && has3d.length > 0 && has3d !== "none";
     }
 
     /** 
@@ -401,15 +391,16 @@
      *  added to the DOM
      */
     Plugin.prototype.insertAt = function (index, element) {
-        var lastIndex = $(this.element).children().size();
+        var $element = $(this.element),
+            lastIndex = $element.children().size();
         if (index < 0) {
             index = Math.max(0, lastIndex + 1 + index);
         }
-        var imgWrapper = $(this.element).append(element);
+        $element.append(element);
         if (index < lastIndex) {
-            $(this.element).children().eq(index).before($(this.element).children().last());
+            $element.children().eq(index).before($element.children().last());
         }
-    }
+    };
 
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
@@ -418,6 +409,6 @@
                 new Plugin( this, options ));
             }
         });
-    }
+    };
 
 })( jQuery, window, document );
