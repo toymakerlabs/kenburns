@@ -1,6 +1,6 @@
 Kenburns
 ========
- Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect. 
+ Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, [Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect) style effect. 
  
 Example: <http://www.toymakerlabs.com/kenburns>
 
