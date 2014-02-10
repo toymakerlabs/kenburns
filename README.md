@@ -25,7 +25,7 @@ Usage
 -------------------
 Basic plugin use looks like this:
 
-    $("#wrapper").Kenburns({
+    $("#kenburns_slideshow").Kenburns({
         images:["image0.jpg", "image2.jpg"],
         scale:1,
         duration:6000,
