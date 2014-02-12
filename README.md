@@ -70,7 +70,7 @@ Include the the CSS. The plugin wraps images in divs with a class of _.kb-slide_
 ######3. SCRIPT
 Then initialize the plugin. In the example below, it should log the current slide and a message when loading has completed. 
 
-    $("#wrapper").Kenburns({
+    $("#kenburns_slideshow").Kenburns({
         images:[
             "images/image0.jpg", 
             "images/image1.jpg",
