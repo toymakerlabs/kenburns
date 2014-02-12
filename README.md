@@ -1,6 +1,6 @@
 Kenburns
 ========
- Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, _[Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect)_ style effect. 
+ Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads a list of images and transitions them using a pan-and-zoom, [Ken Burns](http://en.wikipedia.org/wiki/Ken_Burns_effect) style effect. 
  
 Example: <http://www.toymakerlabs.com/kenburns>
 
@@ -25,7 +25,7 @@ Usage
 -------------------
 Basic plugin use looks like this:
 
-    $("#wrapper").Kenburns({
+    $("#kenburns_slideshow").Kenburns({
         images:["image0.jpg", "image2.jpg"],
         scale:1,
         duration:6000,
@@ -70,7 +70,7 @@ Include the the CSS. The plugin wraps images in divs with a class of _.kb-slide_
 ######3. SCRIPT
 Then initialize the plugin. In the example below, it should log the current slide and a message when loading has completed. 
 
-    $("#wrapper").Kenburns({
+    $("#kenburns_slideshow").Kenburns({
         images:[
             "images/image0.jpg", 
             "images/image1.jpg",
@@ -90,8 +90,6 @@ Then initialize the plugin. In the example below, it should log the current slid
         }
     });
     
-
-
 
 How it Works
 -------------------
@@ -155,7 +153,7 @@ A callback function when the images have finished loading.
 
 Dependencies
 -----
-Jquery 1.8.2.
+Jquery 1.8.2 +.
 
 It will probably work fine in previous versions but it hasn't yet been tested. 
 
