@@ -246,16 +246,22 @@
         var image = imagesObj["image"+currentSlide].element;
 
         var ratio = image.height/image.width;
-        var sw = Math.floor($(this.element).width()*(1/scale));
-        var sh = Math.floor($(this.element).width()*ratio*(1/scale));
-
+  
+        var sw = Math.floor(this.width*(1/scale));
+        var sh = Math.floor(this.width*ratio*(1/scale));
+        if(sw < this.width){
+          sh = sh*(this.width/sw);
+          sw = this.width;
+        }else if(sh < this.height){
+          sw = sw*(this.height/sh);
+          sh = this.height;
+        }
+  
         $(image).width(sw);
         $(image).height(sh);
 
         var w = $(this.element).width();
         var h = $(this.element).height();
-
-        //console.log(sw+ ", " + this.width);
 
         var corners = [
             {x:0,y:0},
@@ -281,7 +287,7 @@
         }
 
       //
-      //  console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
+      console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
 
         return coordinates;
     }
