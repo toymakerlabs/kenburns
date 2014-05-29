@@ -260,39 +260,40 @@
         $(image).width(sw);
         $(image).height(sh);
 
-        var w = $(this.element).width();
-        var h = $(this.element).height();
+        function getCoordinates(w,h,sw,sh,s){
+  
+          var corners = [
+              {x:0,y:0},
+              {x:1,y:0},
+              {x:0,y:1},
+              {x:1,y:1}
+          ];
+  
+          //Pick the first corner. Remove it from the array
+          var choice = Math.floor(Math.random()*4);
+          var start = corners[choice];
 
-        var corners = [
-            {x:0,y:0},
-            {x:1,y:0},
-            {x:0,y:1},
-            {x:1,y:1}
-        ];
-
-        //Pick the first corner. Remove it from the array 
-        var choice = Math.floor(Math.random()*4);
-        var start = corners[choice];
-
-        //Pick the second corner from the subset
-        corners.splice(choice,1);
-        var end = corners[Math.floor(Math.random()*3)];
-
-        //build the new coordinates from the chosen coordinates
-        var coordinates = {
-            startX: start.x * (w - sw*scale) ,
-            startY: start.y * (h - sh*scale),
-            endX: end.x * (w - sw),
-            endY: end.y * (h - sh)
+          //Pick the second corner from the subset
+          corners.splice(choice,1);
+          var end = corners[Math.floor(Math.random()*3)];
+  
+          //build the new coordinates from the chosen coordinates
+          var c = {
+              startX: start.x * (w - sw*s),
+              startY: start.y * (h - sh*s),
+              endX: end.x * (w - sw),
+              endY: end.y * (h - sh)
+          };
+  
+          //if image is not exactly size of gallery, ensure it animates
+          if(!(w == sw && h == sh) && c.startX == c.endX && c.startY == c.endY)
+            c = getCoordinates(w,h,sw,sh,s);
+  
+          return c;
         }
 
-      //
-      console.log(coordinates.startX + " , "+coordinates.startY + " , " +coordinates.endX + " , " +coordinates.endY);
-
-        return coordinates;
+        return getCoordinates(this.width,this.height,sw,sh,scale);
     }
-
-
 
     /** 
     *  Transiton3D
