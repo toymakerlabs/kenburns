@@ -5,13 +5,7 @@
 </head>
 <body>
 	<div id="kenburns-slideshow"></div>
-	<div id="kenburns-description">
-		<h1 id="status">Loading Images..</h1>
-		<h1 id="slide-title"></h1>
-		<h1 class="title"><a href="http://www.github.com/toymakerlabs/kenburns/" target="blank">Kenburns.js
-		</a></h1>
-		<p>Kenburns.js is a lightweight and flexible Jquery gallery plugin that loads images and features an animated, pan-and-zoom, Ken Burns style effect. Grab the source from my <a href="http://www.github.com/toymakerlabs/kenburns/" target="blank"> Github</a></p>
-	</div>
+	<h2 id="slide-title"></h2>
 	<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery.kenburns.js"></script>
 	
@@ -42,7 +36,7 @@
 	    		$('#slide-title').html(titles[this.getSlideIndex()]);
 	    	},
 	    	onLoadingComplete: function(){
-	    		$('#status').html("Loading Complete");
+	    		//$('#status').html("Loading Complete");
 	    	}
 
 	    });
