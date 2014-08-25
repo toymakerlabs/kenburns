@@ -1,7 +1,7 @@
 
 body {
 	font-family: Arial,sans-serif;
-	background-color: #D9D9D9;
+	background-color: #000;
 }
 
 /* KENBURNS STYLES 
@@ -17,11 +17,11 @@ gaps may appear. If image sizes are exactly the same,
 the images will fade over one another and not move. 
 */
 #kenburns-slideshow {
-	position: relative;
-	width:600px;
-	height: 360px;
-	background-color:#292929;
-	border:22px solid #191919;
+	position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
 	z-index: 1;
 	overflow: hidden;
 }
@@ -83,48 +83,15 @@ but you could also use a gif to better handle ie8*/
 	100% { -webkit-transform:rotate(-360deg); }
 }
 
-#kenburns-description{
-	width: 600px;
-	background-color:#191919;
-	color:#999;
-	padding:0 22px 22px 22px;
 
-}
-
-#kenburns-description p{
-	margin:0;
-	padding:0;
-	line-height: 18px;
-	font-size:12px;
-
-}
-
-#kenburns-description a{
-	color:white;
-	text-decoration: none;
-}
-#kenburns-description a:hover{
-	color:green;
-	text-decoration: none;
-}
-
-#kenburns-description a:visited{
-	color:white;
-}
-.title {
-	clear: left;
-	margin:0;
-	padding:15px 0 0 0;
-}
 #slide-title{
-	font-size: 12px;
 	float:left;
-	color:#7085B3;
+	color:#fff;
+  z-index:2;
+  position:absolute;
+  bottom:1em;
+  left:1em;
+  background:#000;
+  margin:0;
+  padding:0.25em 0.5em;
 }
-#status{
-	color:#333;
-	font-size: 12px;
-	float:right;
-	clear: right;
-}
-
