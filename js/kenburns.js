@@ -49,7 +49,7 @@
         this._defaults = defaults;
         this._name = pluginName;
         this.maxSlides = this.options.images.length;
-        
+
         this.init();
     }
 
@@ -58,7 +58,7 @@
     ------------------------------------------------------------------------------------------------- */
     /**
      * Init
-     * Initial setup - dermines width, height, and adds the loading icon. 
+     * Initial setup - dermines width, height, and adds the loading icon.
      */
     Plugin.prototype.init = function () {
 
@@ -74,7 +74,7 @@
             imagesObj["image"+i] = {};
             imagesObj["image"+i].loaded = false;
         	this.attachImage(list[i], "image"+i , i);
-        	
+
         }
 
         var loader = $('<div/>');
@@ -87,13 +87,13 @@
 
     /*  2. Loading and Setup
     ------------------------------------------------------------------------------------------------- */
-   
+
     /**
      * Attach image
      * creates a wrapper div for the image along with the image tag. The reason for the additional
      * wrapper is that we are transitioning multiple properties at the same time: scale, position, and
      * opacity. But we want opacity to finish first. This function also determines if the browser
-     * has 3d transform capabilities and initializes the starting CSS values. 
+     * has 3d transform capabilities and initializes the starting CSS values.
      */
     Plugin.prototype.attachImage = function(url,alt_text,index) {
     	var that = this;
@@ -122,7 +122,7 @@
 
 
         //set up the image OBJ parameters - used to track loading and initial dimensions
-        img.load(function() {
+        img.on("load", function() {
         	imagesObj["image"+index].element = this;
         	imagesObj["image"+index].loaded  = true;
             imagesObj["image"+index].width = $(this).width();
@@ -147,7 +147,7 @@
 
         }
 
-        //if the next image hasnt loaded yet, but the transition has started, 
+        //if the next image hasnt loaded yet, but the transition has started,
         // this will match the image index to the image holding the transition.
         // it will then resume the transition.
         if(index == this.holdup) {
@@ -169,7 +169,7 @@
         }
     }
 
-    //if any of the slides are not loaded, the set has not finished loading. 
+    //if any of the slides are not loaded, the set has not finished loading.
     Plugin.prototype.checkLoadProgress = function() {
         var imagesLoaded = true;
          for(i=0;i<this.maxSlides;i++){
@@ -183,7 +183,7 @@
     /**
      * Wait
      * Stops the transition interval, shows the loader and
-     * applies the stalled class to the visible image. 
+     * applies the stalled class to the visible image.
      */
     Plugin.prototype.wait = function() {
         clearInterval(this.interval);
@@ -204,7 +204,7 @@
      * startTransition
      * Begins the Gallery Transition and tracks the current slide
      * Also manages loading - if the interval encounters a slide
-     * that has not loaded, the transition pauses. 
+     * that has not loaded, the transition pauses.
      */
 	Plugin.prototype.startTransition = function(start_index) {
 	    var that = this;
@@ -219,13 +219,13 @@
             }else {
                 currentSlide = 0;
             }
-            
+
             //Check if the next slide is loaded. If not, wait.
             if(imagesObj["image"+currentSlide].loaded == false){
                 that.holdup = currentSlide;
                 that.wait();
 
-            //if the next slide is loaded, go ahead and do the transition. 
+            //if the next slide is loaded, go ahead and do the transition.
             }else {
                 that.doTransition();
             }
@@ -234,15 +234,15 @@
 	}
 
 
-    /** 
+    /**
     * chooseCorner
     * This function chooses a random start corner and a random end corner
     * that is different from the start. This gives a random direction effect
-    * it returns coordinates used by the transition functions. 
+    * it returns coordinates used by the transition functions.
     */
-   
+
     Plugin.prototype.chooseCorner = function() {
-        var scale = this.options.scale; 
+        var scale = this.options.scale;
         var image = imagesObj["image"+currentSlide].element;
 
         var ratio = image.height/image.width;
@@ -264,7 +264,7 @@
             {x:1,y:1}
         ];
 
-        //Pick the first corner. Remove it from the array 
+        //Pick the first corner. Remove it from the array
         var choice = Math.floor(Math.random()*4);
         var start = corners[choice];
 
@@ -288,7 +288,7 @@
 
 
 
-    /** 
+    /**
     *  Transiton3D
     *  Transition3d Function works by setting the webkit and moz translate3d properties. These
     *  are hardware accellerated and give a very smooth animation. Since only one animation
@@ -298,7 +298,7 @@
 
     Plugin.prototype.transition3d = function () {
         var that  = this;
-        var scale = this.options.scale; 
+        var scale = this.options.scale;
         var image = imagesObj["image"+currentSlide].element;
         var position = this.chooseCorner();
 
@@ -329,16 +329,16 @@
 
     /**
      *  Transition
-     *  The regular JQuery animation function. Sets the currentSlide initial scale and position to 
+     *  The regular JQuery animation function. Sets the currentSlide initial scale and position to
      *  the value from chooseCorner before triggering the animation. It starts the image moving to
      *  the new position, starts the fade on the wrapper, and delays the fade out animation. Adding
      *  fadeSpeed to duration gave me a nice crossfade so the image continues to move as it fades out
-     *  rather than just stopping.  
+     *  rather than just stopping.
      */
 
     Plugin.prototype.transition = function() {
         var that  = this;
-        var scale = this.options.scale; 
+        var scale = this.options.scale;
         var image = imagesObj["image"+currentSlide].element;
         var sw = $(image).width();
         var sh = $(image).height();
@@ -346,7 +346,7 @@
 
         $(image).css({'left':position.startX,'top':position.startY,'width':sw*(scale),'height':sh*(scale)});
         $(image).animate({'left':position.endX,'top':position.endY,'width':sw,'height':sh}, that.options.duration + that.options.fadeSpeed);
-        
+
         $(image).parent().css({'opacity':0,'z-index':3});
         $(image).parent().animate({'opacity':1},that.options.fadeSpeed);
 
@@ -367,14 +367,14 @@
 
     /* 4. Utility Functions
     ------------------------------------------------------------------------------------------------- */
-    /** 
+    /**
      *  has3DTransforms
      *  Tests the browser to determine support for Webkit and Moz Transforms
      *  Creates an element, translates the element, and tests the values. If the
-     *  values return true, the browser supports 3D transformations. 
+     *  values return true, the browser supports 3D transformations.
      */
     function has3DTransforms() {
-        var el = document.createElement('p'), 
+        var el = document.createElement('p'),
             has3d,
             transforms = {
                 'WebkitTransform':'-webkit-transform',
@@ -394,14 +394,14 @@
         return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
     }
 
-    /** 
+    /**
      *  insertAt
      *  Utility function that inserts objects at a specific index
      *  Used to maintain the order of images as they are loaded and
      *  added to the DOM
      */
     Plugin.prototype.insertAt = function (index, element) {
-        var lastIndex = $(this.element).children().size();
+        var lastIndex = $(this.element).children().length;
         if (index < 0) {
             index = Math.max(0, lastIndex + 1 + index);
         }
@@ -414,7 +414,7 @@
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
             if (!$.data(this, 'plugin_' + pluginName)) {
-                $.data(this, 'plugin_' + pluginName, 
+                $.data(this, 'plugin_' + pluginName,
                 new Plugin( this, options ));
             }
         });
